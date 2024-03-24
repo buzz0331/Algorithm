@@ -2,7 +2,7 @@ name: Update README with Problem Solutions
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # 매일 00:00에 실행하도록 스케줄링
+    - cron: '0 0 * * *'  
 
 jobs:
   update_readme:
