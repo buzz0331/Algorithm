@@ -16,30 +16,20 @@ public class Main {
             line[i] = br.readLine();
         }
 
-        int min = Integer.MAX_VALUE; //칠하는 최소 정사각형
-        final int LIMIT = 8;
+        int min = 64; //칠하는 최소 정사각형
 
-        boolean isBlack = true; //첫번째가 검정 정사각형인 경우
-        int flag = 0;
-        while (isBlack || flag ==1) {
-            flag++;
-            for (int start_row = 0; start_row < row_size - 7; start_row++) {
-                for (int start_col = 0; start_col < col_size - 7; start_col++) {
-                    int temp = getMin(start_row, start_col, line, isBlack);
-                    if (temp < min) {
-                        min = temp;
-                    }
-                }
+        for (int start_row = 0; start_row < row_size - 7; start_row++) {
+            for (int start_col = 0; start_col < col_size - 7; start_col++) {
+                int temp = getMin(start_row, start_col, line);
+                min = Math.min(temp, min);
             }
-
-            isBlack = false;
         }
 
         System.out.println(min);
 
     }
 
-    private static int getMin(int start_row, int start_col, String[] line, boolean isBlack) {
+    private static int getMin(int start_row, int start_col, String[] line) {
         final String WHITE = "WBWBWBWB";
         final String BLACK = "BWBWBWBW";
         int count = 0;
@@ -47,27 +37,22 @@ public class Main {
         for (int i = 0; i < 8; i++) { //8x8 정사각형 조회
             String check = line[start_row+i].substring(start_col, start_col +8);
             for (int j = 0; j < 8; j++) {
-                count = getCount(isBlack, i, count, BLACK, j, check, WHITE);
+                count = getCount(i, count, BLACK, j, check, WHITE);
             }
         }
+
+        count = Math.min(count, 64 - count);
 
         return count;
     }
 
-    private static int getCount(boolean isBlack, int i, int count, String BLACK, int j, String check, String WHITE) {
+    private static int getCount(int i, int count, String BLACK, int j, String check, String WHITE) {
         if (i % 2 == 0) {
-            if (isBlack) {
-                count = compareLine(BLACK, j, check, count);
-            } else {
-                count = compareLine(WHITE, j, check, count);
-            }
+            count = compareLine(WHITE, j, check, count);
         } else {
-            if (isBlack) {
-                count = compareLine(WHITE, j, check, count);
-            } else {
-                count = compareLine(BLACK, j, check, count);
-            }
+            count = compareLine(BLACK, j, check, count);
         }
+
         return count;
     }
 
