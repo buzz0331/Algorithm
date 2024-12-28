@@ -1,9 +1,7 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.StringTokenizer;
+import java.util.*;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -19,14 +17,16 @@ public class Main {
             B.add(Integer.parseInt(s_B.nextToken()));
         }
 
-        Collections.sort(A);//정렬
-        Collections.sort(B, Collections.reverseOrder());//역정렬
-
         int sum = 0;
+
         for (int i = 0; i < N; i++) {
-            Integer a = A.get(i);
-            Integer b = B.get(i);
-            sum += a*b;
+            int minA = Collections.min(A);
+            int maxB = Collections.max(B);
+
+            sum += minA * maxB;
+
+            A.remove(Integer.valueOf(minA));
+            B.remove(Integer.valueOf(maxB));
         }
 
         System.out.println(sum);
