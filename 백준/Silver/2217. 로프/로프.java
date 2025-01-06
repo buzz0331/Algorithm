@@ -1,30 +1,20 @@
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.math.BigInteger;
+import java.util.*;
 
 public class Main {
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-
-        int N = Integer.parseInt(br.readLine());
-        ArrayList<Integer> ropes = new ArrayList<>(N);
-
-        for (int i = 0; i < N; i++) {
-            ropes.add(Integer.parseInt(br.readLine()));
+        int n = Integer.parseInt(br.readLine());
+        Integer[] arr = new Integer[n];
+        for (int i = 0; i < n; i++) {
+            arr[i] = Integer.parseInt(br.readLine());  //수 입력받기
         }
-
-        Collections.sort(ropes);
-        ArrayList<Integer> W = new ArrayList<>(N); //최대 중량 저장 리스트
-
-        for (Integer rope : ropes) {
-            W.add(rope * N);
-            N--;
+        Arrays.sort(arr, Collections.reverseOrder());  //내림차순으로 정렬하기
+        int total = 0;
+        for (int i = 0; i < n; i++) {
+            total = Math.max(total, arr[i] * (i+1));
         }
-
-        Integer max = Collections.max(W);
-
-        bw.write(String.valueOf(max));
-        bw.flush();
+        System.out.print(total);
     }
 }
