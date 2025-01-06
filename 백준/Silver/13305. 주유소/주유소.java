@@ -1,35 +1,48 @@
-import java.io.*;
-import java.util.ArrayList;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.IOException;
 import java.util.StringTokenizer;
-
+ 
 public class Main {
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-
-        int N = Integer.parseInt(br.readLine());
-
-        StringTokenizer l = new StringTokenizer(br.readLine()); //각 나라 사이 거리
-        StringTokenizer p = new StringTokenizer(br.readLine()); //각 나라의 리터당 가격
-        int price = Integer.parseInt(p.nextToken());
-
-        int min_price = 0;  // 왼쪽 도시에서 제일 오른쪽 도시로 가는 최소 비용
-        int length_sum = 0; // 지금까지 왔던 거리 저장하는 변수
-
-        while (p.hasMoreTokens()) { //왼쪽에서 오른쪽으로 나라 이동
-            length_sum += Integer.parseInt(l.nextToken());
-            int nextPrice = Integer.parseInt(p.nextToken());
-
-            if (nextPrice <= price) { //다음 나라의 리터당 가격이 더 작을 경우 -> (지금까지 왔던 거리 * 현재 price)
-                min_price += length_sum * price;
-
-                length_sum = 0;
-                price = nextPrice;
-            }
-
-        }
-
-        bw.write(String.valueOf(min_price));
-        bw.flush();
-    }
+	
+	public static void main(String[] args) throws IOException {
+ 
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		
+		int N = Integer.parseInt(br.readLine());
+		
+		long[] dist = new long[N - 1];	// 거리
+		long[] cost = new long[N];	// 비용 
+		
+		// 거리 입력 
+		StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+		for(int i = 0; i < N - 1; i++) {
+			dist[i] = Long.parseLong(st.nextToken());
+		}
+		
+		// 리터당 기름값 입력
+		st = new StringTokenizer(br.readLine(), " ");
+		for(int i = 0; i < N; i++) {
+			cost[i] = Long.parseLong(st.nextToken());
+		}
+		
+		long sum = 0;
+		long minCost = cost[0];	// 이전 까지의 과정 중 주유 최소 비용 
+ 
+		for(int i = 0; i < N - 1; i++) {
+			
+			/*
+			 *  현재 주유소가 이전 주유소의 기름값보다 쌀 경우
+			 *  minCost를 갱신해준다. 
+			 */
+			if(cost[i] < minCost) {
+				minCost = cost[i];
+			}
+			
+			sum += (minCost * dist[i]);
+		}
+		
+		System.out.println(sum);
+		
+	}
 }
