@@ -10,12 +10,6 @@ public class Main {
         int[] charges = {5,2};
         int num_of_charge = 0;
 
-        if (n == 1 || n == 3) {
-            bw.write(String.valueOf(-1));
-            bw.flush();
-            return;
-        }
-
         num_of_charge += n / charges[0];
         n %= charges[0];
 
