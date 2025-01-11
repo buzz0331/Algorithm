@@ -1,9 +1,7 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
+import java.util.*;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -30,9 +28,9 @@ public class Main {
 
         int count = 0;
 
-        count = findByDFS(graph, BFS_visited, count, 1);
+//        count = findByDFS(graph, BFS_visited, count, 1);
+        count = findByBFS(graph, DFS_visited);
         System.out.println(count);
-//        int count = findByBFS(graph, DFS_visited);
 
     }
 
@@ -49,8 +47,27 @@ public class Main {
         return count;
     }
 
-    private static int findByBFS(List<List<Integer>> graph, boolean[] dfsVisited) {
-        return 0;
+    private static int findByBFS(List<List<Integer>> graph, boolean[] visited) {
+        Queue<Integer> queue = new LinkedList<>();
+        queue.offer(1);
+        visited[1] = true;
+        int count = 0;
+
+        while (!queue.isEmpty()) {
+            Integer i = queue.poll();
+
+            List<Integer> E = graph.get(i);
+
+            for (int j : E) {
+                if (!visited[j]) {
+                    queue.offer(j);
+                    visited[j] = true;
+                    count++;
+                }
+            }
+        }
+
+        return count;
     }
 
 }
