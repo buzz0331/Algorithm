@@ -28,7 +28,6 @@ public class Main {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
         int T = Integer.parseInt(br.readLine());
-//        int[] results = new int[T];
 
         for (int i = 0; i < T; i++) {
             int size = Integer.parseInt(br.readLine()); //체스판 크기 (size x size)
@@ -56,7 +55,6 @@ public class Main {
 
                 for (int j = 0; j < dx.length; j++) {
                     Position nextPos = new Position(pos.X + dx[j], pos.Y + dy[j], count + 1);
-//                    System.out.println(nextPos.count);
 
                     if (nextPos.X >= 0 && nextPos.X < size && nextPos.Y >= 0 && nextPos.Y < size) {
                         if (!visited[nextPos.X][nextPos.Y]) {
@@ -73,8 +71,6 @@ public class Main {
             }
 
             System.out.println(min);
-
-
         }
     }
 
