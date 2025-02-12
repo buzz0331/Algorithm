@@ -1,60 +1,96 @@
-import java.util.*;
-
-/*
-[백준] 1707번 - 이분 그래프 (Java)
-*/
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.StringTokenizer;
 
 public class Main {
-    static int K, V, E;
-    static ArrayList<Integer> list[];
-    static int visited[];
-    static String result = "";
 
-    static boolean DFS(int node, int color) {
-        visited[node] = color;
+    private static int K;   //테스트 케이스 개수
+    private static int V;   //정점의 개수
+    private static int E;   //간선의 개수
 
-        for (int v : list[node]) {
-            //System.out.println("list["+node+"] -> "+v+", color= "+color);
-            if (visited[v] == 0) {
-                DFS(v, color*-1);
-            } else if (visited[v] == visited[node]) {
-                result = "NO";
-                return false;
+    private static StringBuilder sb = new StringBuilder();
+    private static ArrayList<ArrayList<Integer>> graph;
+    
+    private static int[] visited;
+    private static boolean result;
+
+    private static final int NO_VISITED = 0;
+    private static final int W = 1;
+    private static final int B = 2;
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        K = Integer.parseInt(br.readLine());
+
+        for (int i = 0; i < K; i++) {
+            StringTokenizer st = new StringTokenizer(br.readLine());
+            V = Integer.parseInt(st.nextToken());   //정점
+            E = Integer.parseInt(st.nextToken());   //간선
+            visited = new int[V + 1];
+            result = true;
+
+            graph = new ArrayList<>(V);
+            for (int j = 0; j < V + 1; j++) {
+                graph.add(new ArrayList<>());
+                visited[j] = NO_VISITED;
             }
-            if (result.equals("NO")) {
-                return false;
+
+            for (int j = 0; j < E; j++) {
+                st = new StringTokenizer(br.readLine());
+                int u = Integer.parseInt(st.nextToken());
+                int v = Integer.parseInt(st.nextToken());
+
+                graph.get(u).add(v);
+                graph.get(v).add(u);
             }
+
+            boolean answer = true;
+            for (int j = 1; j <= V; j++) {
+                if (visited[j] == NO_VISITED) {
+                    answer = dfs(j, W);
+                }
+                if (!answer) {
+                    break;
+                }
+            }
+
+            if (answer) {
+                sb.append("YES" + "\n");
+            } else {
+                sb.append("NO" + "\n");
+            }
+//            sb.append(result).append("\n");
+
+
+//            result[i] = true;
+
+
         }
-        result = "YES";
-        return true;
+
+        System.out.println(sb);
     }
 
-	public static void main(String[] args) {
-        Scanner in = new Scanner(System.in);
-        K = in.nextInt();
-        for (int i=0; i<K; i++) {
-            result = "";// 결과값 초기화
-            V = in.nextInt();
-            E = in.nextInt();
-            list = new ArrayList[V+1];
-            for (int j=1; j<=V; j++) {
-                list[j] = new ArrayList<>();
+    private static boolean dfs(int start, int flag) {
+
+        ArrayList<Integer> vertexes = graph.get(start);
+        visited[start] = flag;
+
+        for (Integer vertex : vertexes) {
+            if (visited[vertex] == NO_VISITED) {
+                dfs(vertex, flag == W ? B : W);
+            } else if (visited[vertex] == visited[start]) { //이전에 같은 팀으로 배정했는데 돌다보니 인접한 놈일때..
+                result = false;
+                return false;
             }
-            visited = new int[V+1];
-            for (int k=1; k<=E; k++) {
-                int s = in.nextInt();
-                int e = in.nextInt();
-                list[s].add(e);
-                list[e].add(s);
+            if (!result) {  //이미 안쪽에서 false를 반환했다면
+                return false;
             }
-            boolean ans = true;
-            for (int t=1; t<=V; t++) {
-                if (visited[t] == 0) {
-                    ans = DFS(t, 1);
-                }
-                if (ans == false) break;//그래프가 여러개일 때 하나라도 이분그래프가 아니면 중지
-            }
-            System.out.println(result);
         }
-	}
+        result = true;
+        return true;
+    }
 }
