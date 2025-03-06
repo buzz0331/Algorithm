@@ -1,3 +1,5 @@
+
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -7,55 +9,62 @@ import java.util.StringTokenizer;
 
 public class Main {
 
-    private static boolean[] visited;
-    private static final int MAX = 100000;
+    private static final int MAX = 100001;
+    private static final boolean[] visited = new boolean[MAX];
+    private static final Queue<Position> queue = new LinkedList<>();
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
         StringTokenizer st = new StringTokenizer(br.readLine());
-        int X = Integer.parseInt(st.nextToken());   //수빈이 위치
-        int goal = Integer.parseInt(st.nextToken());    //동생 위치
 
-        int min = Integer.MAX_VALUE;
-        visited = new boolean[MAX + 1];        //수빈이가 방문한 위치
+        int N = Integer.parseInt(st.nextToken());
+        int K = Integer.parseInt(st.nextToken());
 
-        min = bfs(X, goal, min);
+        int result = Integer.MAX_VALUE;
 
-        System.out.println(min);
-
-    }
-
-    private static int bfs(int X, int goal, int min) {
-        Queue<Position> queue = new LinkedList<>();
-        queue.offer(new Position(X, 0));
-        visited[X] = true;
+        queue.add(new Position(N, 0));
 
         while (!queue.isEmpty()) {
-            Position position = queue.poll();
-            visited[position.X] = true;
+            Position pos = queue.poll();
+            visited[pos.position] = true;
 
-            if (position.X == goal) {
-                min = Math.min(min, position.second);
+            int multiply = pos.position * 2;
+
+            if (pos.position == K) {
+                result = Math.min(result, pos.count);
             }
 
-            if(position.X * 2 <= MAX && !visited[position.X * 2])
-                queue.offer(new Position(position.X * 2, position.second));
-            if(position.X + 1 <= MAX && !visited[position.X + 1])
-                queue.offer(new Position(position.X + 1, position.second + 1));
-            if (position.X - 1 >= 0 && !visited[position.X - 1])
-                queue.offer(new Position(position.X - 1, position.second + 1));
+            if (multiply < MAX) {
+                if (!visited[multiply]) {
+                    queue.add(new Position(multiply, pos.count));
+                }
+            }
+
+            if (pos.position + 1 < MAX) {
+                if (!visited[pos.position + 1]) {
+                    queue.add(new Position(pos.position + 1, pos.count + 1));
+                }
+            }
+
+            if (pos.position - 1 >= 0) {
+                if (!visited[pos.position - 1]) {
+                    queue.add(new Position(pos.position - 1, pos.count + 1));
+                }
+            }
 
         }
-        return min;
+
+        System.out.println(result);
     }
 
     private static class Position {
-        public int X;
-        public int second;
+        public int position;
+        public int count;
 
-        public Position(int x, int second) {
-            X = x;
-            this.second = second;
+        public Position(int position, int count) {
+            this.position = position;
+            this.count = count;
         }
     }
 }
