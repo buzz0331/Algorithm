@@ -31,7 +31,8 @@ public class Main {
              graph[A].add(B);
          }
 
-        Dijkstra(X);
+//        Dijkstra(X);
+        BFS(X);
         System.out.print(checkAnswer(K, dist));
     }
 
@@ -50,32 +51,53 @@ public class Main {
         }
     }
 
-    private static void Dijkstra(int start){
-        boolean[] visited = new boolean[N + 1];
-        dist = new int[N + 1];
-        PriorityQueue<Node> pq = new PriorityQueue<>();
+//    private static void Dijkstra(int start){
+//        boolean[] visited = new boolean[N + 1];
+//        dist = new int[N + 1];
+//        PriorityQueue<Node> pq = new PriorityQueue<>();
+//
+//        Arrays.fill(dist, Integer.MAX_VALUE);
+//
+//        pq.offer(new Node(start, 0));
+//        dist[start] = 0;
+//
+//        while(!pq.isEmpty()){
+//            Node currentVertex = pq.poll();
+//            if (visited[currentVertex.number]) {    //이미 방문한 경우 패스
+//                continue;
+//            } else {
+//                visited[currentVertex.number] = true;
+//            }
+//
+//            for(int adjNode : graph[currentVertex.number]){
+//                if(dist[adjNode] > currentVertex.cost + 1){
+//                    dist[adjNode] = currentVertex.cost + 1;
+//                    pq.offer(new Node(adjNode, currentVertex.cost + 1));
+//                }
+//            }
+//        }
+//    }
+private static void BFS(int start){
+    Queue<Integer> queue = new LinkedList<>();
+    boolean[] visited = new boolean[N + 1];
+    dist = new int[N + 1];
+    Arrays.fill(dist, -1); // -1로 초기화
 
-        Arrays.fill(dist, Integer.MAX_VALUE);
+    queue.offer(start);
+    visited[start] = true;
+    dist[start] = 0;
 
-        pq.offer(new Node(start, 0));
-        dist[start] = 0;
-
-        while(!pq.isEmpty()){
-            Node currentVertex = pq.poll();
-            if (visited[currentVertex.number]) {    //이미 방문한 경우 패스
-                continue;
-            } else {
-                visited[start] = true;
-            }
-
-            for(int adjNode : graph[currentVertex.number]){
-                if(dist[adjNode] > currentVertex.cost + 1){
-                    dist[adjNode] = currentVertex.cost + 1;
-                    pq.offer(new Node(adjNode, currentVertex.cost + 1));
-                }
+    while(!queue.isEmpty()){
+        int current = queue.poll();
+        for(int next : graph[current]){
+            if(!visited[next]){
+                visited[next] = true;
+                dist[next] = dist[current] + 1;
+                queue.offer(next);
             }
         }
     }
+}
 
     private static StringBuilder checkAnswer(int answer, int[] dist) {
         StringBuilder sb = new StringBuilder();
