@@ -51,9 +51,10 @@ public class Main {
             if(currentIdx == end) break;
 
             for(Node neighbor : graph[currentIdx]){
-                if (dist[neighbor.index] > dist[currentIdx] + neighbor.cost) {
-                    pq.offer(new Node(neighbor.index, dist[currentIdx] + neighbor.cost));
-                    dist[neighbor.index] = dist[currentIdx] + neighbor.cost;
+                int newDist = dist[currentIdx] + neighbor.cost;
+                if (dist[neighbor.index] > newDist) {
+                    dist[neighbor.index] = newDist;
+                    pq.offer(new Node(neighbor.index, newDist));
                 }
             }
         }
@@ -72,7 +73,7 @@ public class Main {
 
         @Override
         public int compareTo(Node o) {
-            return this.cost - o.cost;
+            return Integer.compare(this.cost, o.cost);
         }
     }
 }
