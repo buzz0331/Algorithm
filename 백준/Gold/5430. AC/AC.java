@@ -1,78 +1,90 @@
-import java.util.*;
-import java.io.*;
-
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.util.StringTokenizer;
+import java.util.ArrayDeque;
+ 
 public class Main {
-    private static Deque<Integer> deque;
-    private static boolean isReverse;
-
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-
-        int T = Integer.parseInt(br.readLine());
-        StringBuilder sb = new StringBuilder();
-
-        for(int i = 0; i < T; i++){
-            deque = new LinkedList<>();
-            isReverse = false;
-            String[] operation = br.readLine().split("");
-
-            int n = Integer.parseInt(br.readLine());
-
-            String temp = br.readLine().replace("[", "").replace("]", "");
-            StringTokenizer st = new StringTokenizer(temp, ",");
-            for(int j = 0; j < n; j++){
-                deque.offerLast(Integer.parseInt(st.nextToken()));
-            }
-
-            boolean isError = false;
-            for (String op : operation) {
-                if(op.equals("R")) {
-                    reverse();
-                    continue;
-                }
-                if(op.equals("D")) {
-                    if(dump()){
-                        isError = true;
-                    };
-                }
-            }
-
-            if(isError){
-                sb.append("error").append("\n");
-            } else{
-                int size = deque.size();
-                sb.append("[");
-                for(int j = 0; j < size; j++){
-                    if(isReverse) sb.append(deque.pollLast());
-                    else sb.append(deque.pollFirst());
-
-                    if(j != size - 1) sb.append(",");
-                }
-                sb.append("]").append("\n");
-                
-            }
-
-        }
-
-        bw.write(sb.toString());
-        bw.flush(); bw.close();
-    }
-
-    private static void reverse(){
-        isReverse = !isReverse;
-    }
-
-    private static boolean dump(){
-        if(deque.isEmpty()){
-            return true;
-        }
-
-        if(isReverse){
-            deque.pollLast();
-        }else{
-            deque.pollFirst();
-        }
-        return false;
-    }
+ 
+	public static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+	public static StringBuilder sb = new StringBuilder();
+	
+	public static void main(String[] args) throws IOException {
+		
+		ArrayDeque<Integer> deque;
+		StringTokenizer st;
+		
+		int T = Integer.parseInt(br.readLine());
+		
+		while(T --> 0) {
+			
+			String command = br.readLine();
+			int n = Integer.parseInt(br.readLine());
+			
+			st = new StringTokenizer(br.readLine(), "[],");
+			deque = new ArrayDeque<Integer>();
+			
+			for(int i = 0; i < n; i++) {
+				deque.add(Integer.parseInt(st.nextToken()));
+			}
+			
+			AC(command, deque);
+		}
+		
+		System.out.println(sb);
+	}
+	
+	public static void AC(String command, ArrayDeque<Integer> deque) {
+		
+		boolean isRight = true;
+		
+		for(char cmd : command.toCharArray()) {
+			
+			if(cmd == 'R') {
+				isRight = !isRight;
+				continue;
+			}
+			
+			if(isRight) {
+				if(deque.pollFirst() == null) {
+					sb.append("error\n");
+					return;
+				}
+			}
+			else {
+				if(deque.pollLast() == null) {
+					sb.append("error\n");
+					return;
+				}	
+			}
+		}
+		
+		makePrintString(deque, isRight);
+	}
+	
+	public static void makePrintString(ArrayDeque<Integer> deque, boolean isRight) {
+		
+		sb.append('[');
+		
+		if(deque.size() > 0) {
+			
+			if(isRight) {
+				
+				sb.append(deque.pollFirst());
+				
+				while(!deque.isEmpty()) {
+					sb.append(',').append(deque.pollFirst());
+				}
+			}
+			else {
+				sb.append(deque.pollLast());
+				
+				while(!deque.isEmpty()) {
+					sb.append(',').append(deque.pollLast());
+				}
+			}
+		}
+		
+		sb.append(']').append('\n');
+	}
 }
