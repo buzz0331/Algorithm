@@ -28,7 +28,6 @@ public class Main {
             dfs(depth + 1, i);
             sb.deleteCharAt(depth * 2 + 1);
             sb.deleteCharAt(depth * 2);
-
         }
     }
 
