@@ -38,8 +38,9 @@ public class Main {
         maxDpUntil[1] = Math.max(dp[0], dp[1]);
 
         for (int i = 2; i < table.length; i++) {
-            dp[i] = Math.max(maxDpUntil[i - 2] + table[i], table[i - 1] + table[i]);
-            table[i] += maxDpUntil[i - 2];
+            int maxDp = maxDpUntil[i - 2];
+            dp[i] = Math.max(maxDp + table[i], table[i - 1] + table[i]);
+            table[i] += maxDp;
             maxDpUntil[i] = Math.max(maxDpUntil[i - 1], dp[i]);
         }
     }
