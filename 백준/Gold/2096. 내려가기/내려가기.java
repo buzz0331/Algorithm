@@ -2,51 +2,45 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-
     private static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
     private static BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-    private static int[][] numbers;
-    private static int[][] maxDp;
-    private static int[][] minDp;
+    private static int[][] maxDp = new int[2][3];
+    private static int[][] minDp = new int[2][3];
     private static int N;
 
     public static void main(String[] args) throws IOException {
         N = Integer.parseInt(br.readLine());
-        StringTokenizer st;
-        numbers = new int[N][3];
-        maxDp = new int[N][3];
-        minDp = new int[N][3];
-
-        for(int i = 0; i < N; i++) {
-            st = new StringTokenizer(br.readLine());
-            numbers[i][0] = Integer.parseInt(st.nextToken());
-            numbers[i][1] = Integer.parseInt(st.nextToken());
-            numbers[i][2] = Integer.parseInt(st.nextToken());
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        for (int j = 0; j < 3; j++) {
+            int val = Integer.parseInt(st.nextToken());
+            maxDp[0][j] = val;
+            minDp[0][j] = val;
         }
 
-        dp();
+        for (int i = 1; i < N; i++) {
+            st = new StringTokenizer(br.readLine());
+            int a = Integer.parseInt(st.nextToken());
+            int b = Integer.parseInt(st.nextToken());
+            int c = Integer.parseInt(st.nextToken());
+
+            maxDp[1][0] = a + Math.max(maxDp[0][0], maxDp[0][1]);
+            maxDp[1][1] = b + Math.max(Math.max(maxDp[0][0], maxDp[0][1]), maxDp[0][2]);
+            maxDp[1][2] = c + Math.max(maxDp[0][1], maxDp[0][2]);
+
+            minDp[1][0] = a + Math.min(minDp[0][0], minDp[0][1]);
+            minDp[1][1] = b + Math.min(Math.min(minDp[0][0], minDp[0][1]), minDp[0][2]);
+            minDp[1][2] = c + Math.min(minDp[0][1], minDp[0][2]);
+
+            for (int j = 0; j < 3; j++) {
+                maxDp[0][j] = maxDp[1][j];
+                minDp[0][j] = minDp[1][j];
+            }
+        }
+
         int max = Math.max(maxDp[0][0], Math.max(maxDp[0][1], maxDp[0][2]));
         int min = Math.min(minDp[0][0], Math.min(minDp[0][1], minDp[0][2]));
 
-        StringBuilder sb = new StringBuilder();
-        sb.append(max).append(" ").append(min);
-        bw.write(sb.toString()); bw.flush();
-    }
-
-    private static void dp() {
-        for(int i = 0; i < 3; i++) {
-            maxDp[N - 1][i] = numbers[N - 1][i];
-            minDp[N - 1][i] = numbers[N - 1][i];
-        }
-
-        for(int i = N - 2; i >= 0; i--) {
-            maxDp[i][0] = numbers[i][0] + Math.max(maxDp[i + 1][0], maxDp[i + 1][1]);
-            maxDp[i][1] = numbers[i][1] + Math.max(maxDp[i + 1][0], Math.max(maxDp[i + 1][1], maxDp[i + 1][2]));
-            maxDp[i][2] = numbers[i][2] + Math.max(maxDp[i + 1][1], maxDp[i + 1][2]);
-
-            minDp[i][0] = numbers[i][0] + Math.min(minDp[i + 1][0], minDp[i + 1][1]);
-            minDp[i][1] = numbers[i][1] + Math.min(minDp[i + 1][0], Math.min(minDp[i + 1][1], minDp[i + 1][2]));
-            minDp[i][2] = numbers[i][2] + Math.min(minDp[i + 1][1], minDp[i + 1][2]);
-        }
+        bw.write(max + " " + min);
+        bw.flush();
     }
 }
