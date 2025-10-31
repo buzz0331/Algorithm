@@ -69,7 +69,7 @@ public class Main {
         return answer;
     }
 
-    private static class Node implements Comparable<Node> {
+    private static class Node {
         public int row;
         public int col;
         public int cost;
@@ -87,11 +87,6 @@ public class Main {
             this.col = col;
             this.cost = cost;
             this.canUseWall = canUseWall;
-        }
-
-        @Override
-        public int compareTo(Node o) {
-            return this.cost - o.cost;
         }
     }
 }
