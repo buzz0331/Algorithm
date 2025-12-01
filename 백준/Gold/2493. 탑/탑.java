@@ -7,49 +7,42 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         int N = Integer.parseInt(br.readLine());
-
+        Stack<Tower> stack = new Stack<>();
         int[] towers = new int[N];
+
         StringTokenizer st = new StringTokenizer(br.readLine());
+        StringBuilder sb = new StringBuilder();
 
         for(int i = 0; i < N; i++) {
             towers[i] = Integer.parseInt(st.nextToken());
         }
-        System.out.println(simulate(towers));
-    }
 
-    private static String simulate(int[] towers) {
-        Stack<Tower> towerStack = new Stack<>();
-        StringBuilder sb = new StringBuilder();
+        stack.push(new Tower(0, towers[0]));
+        sb.append("0 ");
 
-        sb.append("0").append(" ");
-        towerStack.push(new Tower(0, towers[0]));
-
-        for(int i = 1; i < towers.length; i++) {
+        for(int i = 1; i < N; i++) {
             int currentHeight = towers[i];
 
-            while(true) {
-                if(towerStack.isEmpty()) {
-                    towerStack.push(new Tower(i, towers[i]));
-                    sb.append("0" + " ");
+            while (true) {
+                Tower tower = stack.pop();
+                if(tower.height >= currentHeight) { // 탑 레이저 만나는 경우
+                    sb.append(tower.index + 1).append(" ");
+                    stack.push(tower);
+                    stack.push(new Tower(i, currentHeight));
                     break;
                 }
 
-                Tower tower = towerStack.pop();
-                if(tower.height <= currentHeight) {
-                    continue; // 뒤에 나온 탑이 더 높으면 더이상 앞에 있는 탑을 스택에 넣을 필요 X
+                if(stack.isEmpty()) {
+                    sb.append("0 ");
+                    stack.push(new Tower(i, currentHeight));
+                    break;
                 }
-
-                sb.append(tower.index + 1).append(" ");
-                towerStack.push(tower);
-                towerStack.push(new Tower(i, towers[i]));
-                break;
             }
-
         }
-        return sb.toString();
+        System.out.println(sb);
     }
 
-    private static class Tower{
+    private static class Tower {
         public int index;
         public int height;
 
@@ -58,5 +51,4 @@ public class Main {
             this.height = height;
         }
     }
-
 }
