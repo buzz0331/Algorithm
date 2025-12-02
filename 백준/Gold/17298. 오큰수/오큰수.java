@@ -41,6 +41,7 @@ public class Main {
         }
 
         Arrays.stream(answer).forEach(a -> sb.append(a).append(" "));
-        System.out.println(sb);
+        bw.write(sb.toString());
+        bw.flush();
     }
 }
