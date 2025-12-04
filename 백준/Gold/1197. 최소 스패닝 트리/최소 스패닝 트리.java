@@ -12,8 +12,8 @@ public class Main {
         V = Integer.parseInt(st.nextToken());
         E = Integer.parseInt(st.nextToken());
 
-//        krusukal();
-        prim();
+        krusukal();
+//        prim();
     }
 
     private static void krusukal() throws IOException {
@@ -32,7 +32,8 @@ public class Main {
 
         int edgeCount = 0;
         long weightCount = 0;
-        while(!pq.isEmpty() && edgeCount < E - 1) {
+        
+        while(!pq.isEmpty() && edgeCount < V - 1) {
             Edge edge = pq.poll();
 
             if(union(edge.x, edge.y, parent)) {
@@ -108,7 +109,7 @@ public class Main {
         while(!pq.isEmpty()) {
             Node node = pq.poll();
             if(visited[node.to]) continue;
-            
+
             visited[node.to] = true;
             weightCount += node.weight;
 
@@ -116,7 +117,7 @@ public class Main {
                 if(!visited[next.to]) pq.offer(next);
             }
         }
-        
+
         System.out.print(weightCount);
     }
 
