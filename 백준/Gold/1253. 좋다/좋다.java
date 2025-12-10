@@ -1,0 +1,43 @@
+import java.util.*;
+import java.io.*;
+
+public class Main {
+
+    private static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+    public static void main(String[] args) throws IOException {
+        int N = Integer.parseInt(br.readLine());
+
+        int[] numbers = new int[N]; // 지금까지 나온 수를 보관
+        Map<Integer, Integer> goodMap = new HashMap<>(); // 나온 수 갯수 보관
+        Set<Integer> goodNum = new HashSet<>(); // 좋은 수 집합
+
+        StringTokenizer st = new StringTokenizer(br.readLine());
+
+        for(int i = 0; i < N; i++) {
+            int num = Integer.parseInt(st.nextToken());
+            numbers[i] = num;
+            goodMap.put(num, goodMap.getOrDefault(num, 0) + 1);
+        }
+
+        for(int i = 0; i < N; i++) {
+            for(int j = 0; j < i; j++) {
+                int sum = numbers[i] + numbers[j];
+
+                if (numbers[i] == 0 && numbers[j] == 0) {
+                    if (goodMap.getOrDefault(sum, 0) >= 3) goodNum.add(sum); //둘다 0인 경우는 3개 인상인 경우에만 가능
+                } else if (numbers[i] == 0 || numbers[j] == 0) {
+                    if (goodMap.getOrDefault(sum, 0) >= 2) goodNum.add(sum); //둘 중 하나만 0인경우에는 0이 2개 이상인 경우에만 가능
+                } else {
+                    goodNum.add(sum);
+                }
+
+
+            }
+        }
+
+        long answer = Arrays.stream(numbers).filter(goodNum::contains).count();
+
+        System.out.print(answer);
+    }
+}
