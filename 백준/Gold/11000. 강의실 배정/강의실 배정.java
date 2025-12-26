@@ -1,56 +1,60 @@
-import java.util.*;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.Arrays;
+import java.util.PriorityQueue;
+import java.util.StringTokenizer;
+
+class Lecture {
+    int start;
+    int end;
+
+    Lecture(int start, int end) {
+        this.start = start;
+        this.end = end;
+    }
+}
 
 public class Main {
 
-    private static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-
     public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        StringTokenizer st;
+
         int N = Integer.parseInt(br.readLine());
+        Lecture[] lectures = new Lecture[N];
+        for (int i = 0; i < N; i++) {
+            st = new StringTokenizer(br.readLine());
 
-        PriorityQueue<Time> pq = new PriorityQueue<>();
+            int start = Integer.parseInt(st.nextToken());
+            int end = Integer.parseInt(st.nextToken());
+            lectures[i] = new Lecture(start, end);
+        }  
+        // 시작 시간을 기준으로 오름차순 정렬하되,
+        // 시작 시간이 같다면, 종료 시간을 기준으로 오름차순 정렬한다.
+        Arrays.sort(lectures, (l1, l2) -> l1.start == l2.start ? l1.end - l2.end : l1.start - l2.start);
 
-        for(int i = 0; i < N; i++) {
-            StringTokenizer st = new StringTokenizer(br.readLine());
-            pq.offer(new Time(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken())));
-        }
+        // 우선순위 큐에는 종료 시간만 들어가며, 오름차순으로 자동 정렬된다.
+        PriorityQueue<Integer> pq = new PriorityQueue<>();
+        pq.offer(lectures[0].end);
 
-        TreeMap<Integer, Integer> room = new TreeMap<>(); // 방 마지막 종료 시각, 방 갯수
-        int answer = 0;
-        while(!pq.isEmpty()) {
-            Time time = pq.poll();
-
-            Integer key = room.floorKey(time.start);// 방에서 현재 스케줄 시작 시간보다 작거나 같은 값 중에서 가장 큰 값
-            if (key != null) {
-                // 기존 방 사용
-                int roomCount = room.get(key);
-                if(--roomCount == 0) room.remove(key); // 방 갯수가 0이면 key 제거
-                else room.put(key, roomCount); // 아니면 유지
-            } else {
-                answer++;
+        for (int i = 1; i < N; i++) {
+            // 우선순위 큐에서 가장 작은 종료 시간과
+            // 현재 lectures[i]의 시작 시간을 비교한다.
+            if (pq.peek() <= lectures[i].start) {
+                pq.poll();
             }
-
-            room.put(time.end, room.getOrDefault(time.end, 0) + 1);
+            pq.offer(lectures[i].end);
         }
 
-        System.out.print(answer);
+        // 현재 우선순위 큐에 남아있는 요소의 개수가 필요한 최소한의 강의실 개수이다.
+        bw.write(pq.size() + "\n");
+        bw.flush();
+        bw.close();
+        br.close();
     }
 
-    private static class Time implements Comparable<Time> {
-        private int start;
-        private int end;
-
-        Time(int start, int end) {
-            this.start = start;
-            this.end = end;
-        }
-
-        @Override
-        public int compareTo(Time o) {
-            if(this.start == o.start) {
-                return Integer.compare(o.end - this.end, this.end - this.start);
-            }
-            return Integer.compare(this.start, o.start);
-        }
-    }
 }
