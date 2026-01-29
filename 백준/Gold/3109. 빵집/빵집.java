@@ -21,9 +21,9 @@ public class Main {
 		map = new int[R][C];
 		
 		for(int i = 0; i < R; i++) {
-			String[] s = br.readLine().split("");
+			char[] c = br.readLine().toCharArray();
 			for(int j = 0; j < C; j++) {
-				map[i][j] = (s[j].equals("x")) ? 1 : 0;
+				map[i][j] = (c[j] == 'x') ? 1 : 0;
 			}
 		}
 
