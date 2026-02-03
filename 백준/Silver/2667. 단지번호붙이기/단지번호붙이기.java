@@ -1,112 +1,75 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
+import java.io.*;
 
 public class Main {
+
+    private static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    private static int[][] map, indexMap;
+    private static final int[][] directions = {{0, 1}, {1, 0}, {-1, 0}, {0, -1}};
+    private static int N;
+
     public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int N = Integer.parseInt(br.readLine());
+        N = Integer.parseInt(br.readLine());
 
-        boolean[][] map = new boolean[N][N];
+        map = new int[N][N];
+        indexMap = new int[N][N];
 
-        /**
-         * 2차원 배열 초기화
-         */
-        for (int i = 0; i < N; i++) {
-            String[] strArr = br.readLine().split(""); //한줄을 strArr 담음
-            for (int j = 0; j < N; j++) {
-                map[i][j] = (Integer.parseInt(strArr[j]) == 1); //1이면 true, 0이면 false 삽입
+        for(int i = 0; i < N; i++) {
+            char[] c = br.readLine().toCharArray();
+            for(int j = 0; j < N; j++) {
+                map[i][j] = c[j] - '0';
             }
         }
 
-        boolean[][] visited = new boolean[N][N]; //방명록
-        ArrayList<Integer> complex = new ArrayList<>(); //아파트 단지 수 담는 리스트
+        int num = 0;
+        List<Integer> group = new ArrayList<>();
+        for(int i = 0; i < N; i++) {
+            for(int j = 0; j < N; j++) {
+                if(map[i][j] == 1 && indexMap[i][j] == 0) {
+                    group.add(bfs(i, j, ++num));
+                }
+            }
+        }
+        StringBuilder sb = new StringBuilder();
+        Collections.sort(group);
 
-        /**
-         * 2차원 배열 BFS 탐색 시작
-         */
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                Queue<Position> queue = new LinkedList<>();
-                int count = 0;  //한 단지내 집의 수
+        sb.append(num).append("\n");
+        for(int g : group) {
+            sb.append(g).append("\n");
+        }
 
-                if (checkPosition(map, i, j, visited)) {
-                    queue.offer(new Position(i, j));
-                    visited[i][j] = true;
+        System.out.print(sb);
+    }
+
+    private static int bfs(int row, int col, int num) {
+        Queue<int[]> queue = new LinkedList<>();
+        int count = 0;
+
+        queue.offer(new int[]{row, col});
+        indexMap[row][col] = num;
+        count++;
+
+        while(!queue.isEmpty()) {
+            int[] current = queue.poll();
+
+            for(int[] direction : directions) {
+                int nR = current[0] + direction[0];
+                int nC = current[1] + direction[1];
+
+                if(isOut(nR, nC)) continue;
+
+                if (indexMap[nR][nC] == 0 && map[nR][nC] == 1) {
+                    queue.offer(new int[]{nR, nC});
+                    indexMap[nR][nC] = num;
                     count++;
                 }
-
-                while (!queue.isEmpty()) {
-                    Position pos = queue.poll();
-                    int forwardX = pos.X + 1;
-                    int forwardY = pos.Y + 1;
-                    int backwardX = pos.X - 1;
-                    int backwardY = pos.Y - 1;
-
-                    if (forwardX < N) {
-                        if (checkPosition(map, forwardX, pos.Y, visited)) {
-                            queue.offer(new Position(forwardX, pos.Y));
-                            visited[forwardX][pos.Y] = true;
-                            count++;
-                        }
-                    }
-
-                    if (backwardX >= 0) {
-                        if (checkPosition(map, backwardX, pos.Y, visited)) {
-                            queue.offer(new Position(backwardX, pos.Y));
-                            visited[backwardX][pos.Y] = true;
-                            count++;
-                        }
-                    }
-
-                    if (forwardY < N) {
-                        if (checkPosition(map, pos.X, forwardY, visited)) {
-                            queue.offer(new Position(pos.X, forwardY));
-                            visited[pos.X][forwardY] = true;
-                            count++;
-                        }
-                    }
-
-                    if (backwardY >= 0) {
-                        if (checkPosition(map, pos.X, backwardY, visited)) {
-                            queue.offer(new Position(pos.X, backwardY));
-                            visited[pos.X][backwardY] = true;
-                            count++;
-                        }
-                    }
-                }
-                if (count != 0) {
-                    complex.add(count);
-                }
-
             }
         }
 
-        Collections.sort(complex);
-        StringBuilder sb = new StringBuilder();
-        sb.append(complex.size());
-        for (int i = 0; i < complex.size(); i++) {
-            sb.append("\n" + complex.get(i));
-        }
-
-        System.out.println(sb);
+        return count;
     }
 
-    private static boolean checkPosition(boolean[][] map, int i, int j, boolean[][] visited) {
-        return map[i][j] && !visited[i][j];
-    }
-
-    private static class Position{
-        int X;
-        int Y;
-
-        public Position(int x, int y) {
-            this.X = x;
-            this.Y = y;
-        }
+    private static boolean isOut(int row, int col) {
+        return row < 0 || col < 0 || row >= N || col >= N;
     }
 }
