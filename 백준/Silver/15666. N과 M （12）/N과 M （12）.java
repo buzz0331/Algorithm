@@ -5,7 +5,6 @@ public class Main {
 
     private static int N, M;
     private static int[] A, arr;
-    private static Set<String> answer = new HashSet<>();
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -32,16 +31,15 @@ public class Main {
                 sb.append(A[i]).append(" ");
             }
 
-            String result = sb.toString();
-            if(answer.contains(result)) return;
-
-            answer.add(result);
-            System.out.println(result);
+            System.out.println(sb);
             return;
         }
 
+        int prev = 0;
         for(int i = start; i < N; i++) {
+            if(arr[i] == prev) continue;
             A[depth] = arr[i];
+            prev = arr[i];
             combi(depth + 1, i);
             A[depth] = 0;
         }
