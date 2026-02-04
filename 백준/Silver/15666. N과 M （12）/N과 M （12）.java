@@ -6,6 +6,8 @@ public class Main {
     private static int N, M;
     private static int[] A, arr;
 
+    private static StringBuilder sb = new StringBuilder();
+
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
@@ -22,16 +24,16 @@ public class Main {
         A = new int[M];
         Arrays.sort(arr);
         combi(0, 0);
+        System.out.print(sb);
     }
 
     private static void combi(int depth, int start) {
         if(depth == M) {
-            StringBuilder sb = new StringBuilder();
             for(int i = 0; i < M; i++) {
                 sb.append(A[i]).append(" ");
             }
 
-            System.out.println(sb);
+            sb.append("\n");
             return;
         }
 
