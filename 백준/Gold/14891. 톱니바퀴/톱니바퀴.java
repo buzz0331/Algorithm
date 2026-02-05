@@ -1,113 +1,93 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
-public class Main {
+class Main
+{
 
-    private static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    private static int[][] cogwheel = new int[4][8];
-    private static int[] idx = new int[4];
+    private static int[][] magnetic, spinInfo;
+    private static int[] top;
 
-    public static void main(String[] args) throws IOException {
-        for(int i = 0; i < 4; i++) {
-            String[] s = br.readLine().split("");
-            for(int j = 0; j < 8; j++) {
-                cogwheel[i][j] = Integer.parseInt(s[j]);
+    public static void main(String args[]) throws Exception
+    {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
+
+        top = new int[4];
+
+        magnetic = new int[4][8];
+        for (int i = 0; i < 4; i++) {
+            char[] c = br.readLine().toCharArray();
+            for (int j = 0; j < 8; j++) {
+                magnetic[i][j] = c[j] - '0';
             }
         }
 
         int K = Integer.parseInt(br.readLine());
-        while(K --> 0) {
+        spinInfo = new int[K][2];
+        for (int i = 0; i < K; i++) {
             StringTokenizer st = new StringTokenizer(br.readLine());
-            int num = Integer.parseInt(st.nextToken()) - 1;     // 톱니바퀴 번호
-            boolean direction = Integer.parseInt(st.nextToken()) == 1; // 회전 방향 (1: 시계 / -1: 반시계)
+            spinInfo[i][0] = Integer.parseInt(st.nextToken()) - 1;
+            spinInfo[i][1] = Integer.parseInt(st.nextToken());
+        }
 
-            int[] spinInfo = new int[4]; // 이번 라운드에서 회전하는 톱니바퀴 (0 : 회전 x / 1 : 시계 / -1 : 반시계)
-
-            spinInfo[num] = direction ? 1 : -1;
-            direction = !direction; // 연쇄적으로 회전하는 톱니바퀴는 반대방향
-
-            if(num == 0) { // 가장 왼쪽
-                spinRight(num, spinInfo, direction);
-
-            } else if(num == 3) { // 가장 오른쪽
-                spinLeft(num, spinInfo, direction);
-            } else if(num == 1) {
-                // 왼쪽 톱니바퀴 회전여부 확인
-                spinLeft(num, spinInfo, direction);
-
-                spinRight(num, spinInfo, direction);
-            } else {
-                // 오른쪽 톱니바퀴 회전여부 확인
-                spinRight(num, spinInfo, direction);
-
-                spinLeft(num, spinInfo, direction);
-            }
-
-            for(int i = 0; i < 4; i++) {
-                spin(i, spinInfo[i]);
-            }
+        for (int[] spin : spinInfo) {
+            bfs(spin[0], spin[1]);
+//                System.out.println(Arrays.toString(top));
         }
 
         int sum = 0;
+        double mul = 0.5;
+        for (int i = 0; i < 4; i++) {
+            mul *= 2;
+            if (magnetic[i][top[i]] == 1) {
+                sum += mul;
+            }
+        }
+
+        sb.append(sum).append("\n");
+
+        System.out.print(sb);
+    }
+
+    private static void bfs(int num, int spinDirection) {
+        Queue<Integer> queue = new ArrayDeque<>();
+        int[] spin = new int[4];
+
+        queue.offer(num);
+        spin[num] = spinDirection;
+
+        while(!queue.isEmpty()) {
+            int current = queue.poll();
+
+            int next = current - 1;
+            if(next >= 0 && spin[next] == 0 && checkDifferent(next, current)) {
+                spin[next] = (spin[current] == 1) ? -1 : 1;
+                queue.offer(next);
+            }
+
+            next = current + 1;
+            if(next < 4 && spin[next] == 0 && checkDifferent(current, next)) {
+                spin[next] = (spin[current] == 1) ? -1 : 1;
+                queue.offer(next);
+            }
+        }
+
         for(int i = 0; i < 4; i++) {
-            if(cogwheel[i][idx[i]] == 1) {
-                if(i == 0) sum += 1;
-                else sum += (1 << i);
+            if(spin[i] == 0) continue;
+            top[i] += (spin[i] == 1) ? -1 : 1;
+            if(top[i] < 0) {
+                top[i] += 8;
+            } else if(top[i] >= 8) {
+                top[i] = 0;
             }
         }
-
-        System.out.print(sum);
     }
 
-    private static void spinLeft(int x, int[] spinInfo, boolean direction) {
-        while(x > 0 && checkLeft(x)) {
-            spinInfo[x - 1] = direction ? 1 : -1;
-            direction = !direction;
-            x--;
-        }
+    // 왼쪽 톱니바퀴와 오른쪽 톱니바퀴의 자성 같은지 여부
+    private static boolean checkDifferent(int a, int b) {
+        int aIdx = (top[a] + 2) % 8;
+        int bIdx = (top[b] + 6) % 8;
+
+        return magnetic[a][aIdx] != magnetic[b][bIdx];
     }
-
-    private static void spinRight(int x, int[] spinInfo, boolean direction) {
-        while(x < 3 && checkRight(x)) {
-            spinInfo[x + 1] = direction ? 1 : -1;
-            direction = !direction;
-            x++;
-        }
-    }
-
-    // num번 톱니바퀴를 x만큼 회전 (시계, 반시계)
-    private static void spin(int num, int direction) {
-        if(direction == -1) { // 시계
-            if(++idx[num] == 8) {
-                idx[num] = 0;
-            }
-        } else if (direction == 1) { // 반시계
-            if(--idx[num] == -1) {
-                idx[num] = 7;
-            }
-        }
-
-    }
-
-    // num번 톱니바퀴의 서쪽/동쪽의 상태를 확인
-    private static int check(int num, boolean isRight) {
-        if(isRight) {
-            return cogwheel[num][(idx[num] + 2) % 8];
-        } else {
-            return cogwheel[num][(idx[num] + 6) % 8];
-        }
-    }
-
-    // 왼쪽 톱니바퀴 회전 여부 확인
-    private static boolean checkLeft(int num) {
-        return check(num, false) != check(num - 1, true);
-    }
-
-    // 오른쪽 톱니바퀴 회전 여부 확인
-    private static boolean checkRight(int num) {
-        return check(num, true) != check(num + 1, false);
-    }
-
-
-
 }
