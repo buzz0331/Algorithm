@@ -67,20 +67,20 @@ class Solution
 
             int next = current - 1;
             if(next >= 0 && spin[next] == 0 && checkDifferent(next, current)) {
-                spin[next] = (spin[current] == 1) ? -1 : 1;
+                spin[next] = spin[current] * -1;
                 queue.offer(next);
             }
 
             next = current + 1;
             if(next < 4 && spin[next] == 0 && checkDifferent(current, next)) {
-                spin[next] = (spin[current] == 1) ? -1 : 1;
+                spin[next] = spin[current] * -1;
                 queue.offer(next);
             }
         }
 
         for(int i = 0; i < 4; i++) {
             if(spin[i] == 0) continue;
-            top[i] += (spin[i] == 1) ? -1 : 1;
+            top[i] += spin[i] * -1;
             if(top[i] < 0) {
                 top[i] += 8;
             } else if(top[i] >= 8) {
