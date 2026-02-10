@@ -14,20 +14,15 @@ public class Main {
         N = Integer.parseInt(br.readLine());
         map = new int[N][N];
 
-        int max = Integer.MIN_VALUE;
-        int min = 0;
-
         for(int i = 0; i < N; i++) {
             StringTokenizer st = new StringTokenizer(br.readLine());
             for(int j = 0; j < N; j++) {
                 map[i][j] = Integer.parseInt(st.nextToken());
-                max = Math.max(max, map[i][j]);
-                min = Math.min(min, map[i][j]);
             }
         }
 
         int answer = 1;
-        for(int height = max - 1; height >= min; height--) {
+        for(int height = 0; height < 100; height++) {
             int count = 0;
             visited = new boolean[N][N];
             for(int i = 0; i < N; i++) {
