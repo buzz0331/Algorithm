@@ -54,6 +54,9 @@ class Solution
             return;
         }
 
+        int possibleIncCnt = processors.size() - depth; // 앞으로 늘어날 수 있는 프로세서 갯수
+        if(connectCount + possibleIncCnt < connectMax) return; // 가지치기 (백트래킹해도 더이상 못가는 경우)
+
         // 선택하지 않은 경우
         backtracking(depth + 1, connectCount, lengthSum);
 
