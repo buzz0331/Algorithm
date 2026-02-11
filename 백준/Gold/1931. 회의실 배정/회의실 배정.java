@@ -1,67 +1,28 @@
-import java.io.*;
 import java.util.*;
+import java.io.*;
 
 public class Main {
+
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-
         int N = Integer.parseInt(br.readLine());
 
-        List<Meeting> meetings = new ArrayList<>(N);
-
-        for (int i = 0; i < N; i++) {
+        PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[1] != b[1] ? Integer.compare(a[1], b[1]) : Integer.compare(a[0], b[0]));
+        
+        for(int i = 0; i < N; i++) {
             StringTokenizer st = new StringTokenizer(br.readLine());
-            int start = Integer.parseInt(st.nextToken());
-            int end = Integer.parseInt(st.nextToken());
-
-            Meeting meeting = new Meeting(start, end);
-            meetings.add(meeting);
+            pq.offer(new int[]{Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken())});
         }
 
-        Collections.sort(meetings);   //끝나는 시간으로 정렬
+        int startTime = 0, count = 0;
+        while(!pq.isEmpty()) {
+            int[] current = pq.poll();
 
-        int count = 0;
-        Meeting meeting = meetings.get(0);
-        int end = meeting.end;
-        count++;
-
-        for (int i = 1; i < N; i++) {
-            Meeting nextMeeting = meetings.get(i);
-            if (end <= nextMeeting.start) {     //가능한 회의 바로 채택
-                end = nextMeeting.end;
-                count++;
-            }
+            if(startTime > current[0]) continue; // 앞 회의 때문에 현재 회의 패스
+            count++;
+            startTime = current[1];
         }
 
-        bw.write(count + "");
-        bw.flush();
-    }
-
-    private static class Meeting implements Comparable<Meeting> {
-        public int start;
-        public int end;
-
-        public Meeting(int start, int end) {
-            this.start = start;
-            this.end = end;
-        }
-
-        @Override
-        public int compareTo(Meeting m) {
-//            if (this.end < m.end) {
-//                return -1;
-//            } else if (this.end > m.end) {
-//                return 1;
-//            } else {
-//                return 0;
-//            }
-            if (this.end == m.end) {
-                return this.start - m.start;    
-            }
-
-            return this.end - m.end;
-            
-        }
+        System.out.print(count);
     }
 }
