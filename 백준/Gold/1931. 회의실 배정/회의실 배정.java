@@ -1,28 +1,32 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 public class Main {
-
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st;
+
+        int last = 0;
+        int count = 0;
+
         int N = Integer.parseInt(br.readLine());
+        int[][] time = new int[N][2];
 
-        PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[1] != b[1] ? Integer.compare(a[1], b[1]) : Integer.compare(a[0], b[0]));
-        
         for(int i = 0; i < N; i++) {
-            StringTokenizer st = new StringTokenizer(br.readLine());
-            pq.offer(new int[]{Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken())});
+            st = new StringTokenizer(br.readLine());
+            time[i][0] = Integer.parseInt(st.nextToken());
+            time[i][1] = Integer.parseInt(st.nextToken());
         }
 
-        int startTime = 0, count = 0;
-        while(!pq.isEmpty()) {
-            int[] current = pq.poll();
+        Arrays.sort(time, (o1, o2) -> o1[1] != o2[1] ? o1[1] - o2[1] : o1[0] - o2[0]);
 
-            if(startTime > current[0]) continue; // 앞 회의 때문에 현재 회의 패스
-            count++;
-            startTime = current[1];
+        for(int i = 0; i < N; i++) {
+            if(last <= time[i][0]) {
+                last = time[i][1];
+                count++;
+            }
         }
 
-        System.out.print(count);
+        System.out.println(count);
     }
 }
