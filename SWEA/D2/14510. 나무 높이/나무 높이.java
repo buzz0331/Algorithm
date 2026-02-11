@@ -30,18 +30,17 @@ class Solution
                 count1 += gap % 2;
            }
 
+            // count1이 더 많아질 때까지 반복
            while(count2 > count1 + 1) {
                count2--;
                count1 += 2;
            }
-
-           if(count1 > count2) {
-               sb.append(count1 * 2 - 1);
-           } else if(count1 == count2) {
-               sb.append(count2 * 2);
-           } else {
-               sb.append(count2 * 2);
-           }
+            
+            if(count1 > count2) { // 홀수가 더 많은 경우
+                sb.append(count1 * 2 - 1);
+            } else { // 짝수가 더 많은 경우
+                sb.append(count2 * 2);
+            }
 
             sb.append("\n");
         }
