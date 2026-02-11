@@ -3,110 +3,114 @@ import java.io.*;
 
 public class Main {
 
-    private static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
     private static int[][] map;
-    private static int babyRow, babyCol, N;
+    private static int[] babyShark;
+    private static int N, sharkSize = 2;
 
-    private static int[][] dRowCol = {{-1,0}, {0,-1}, {0,1}, {1,0}};
+    private static final int[][] directions = {{-1, 0}, {0, -1}, {1, 0}, {0, 1}};
 
     public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         N = Integer.parseInt(br.readLine());
 
         map = new int[N][N];
-        for(int i = 0; i < N; i++) {
+        babyShark = new int[2];
+
+        for (int i = 0; i < N; i++) {
             StringTokenizer st = new StringTokenizer(br.readLine());
-            for(int j = 0; j < N; j++) {
-                int shark = Integer.parseInt(st.nextToken());
-                if(shark == 9) {
-                    babyRow = i;
-                    babyCol = j;
+            for (int j = 0; j < N; j++) {
+                map[i][j] = Integer.parseInt(st.nextToken());
+                if(map[i][j] == 9) {
+                    babyShark[0] = i; babyShark[1] = j;
                 }
-                map[i][j] = shark;
             }
         }
 
-        System.out.println(babyShark());
-
-    }
-
-    private static int babyShark() {
-        int dayCount = 0;
-        int babySize = 2;
-
+        int time = 0;
         int eatCount = 0;
-        Position eatableShark = bfs(babySize);
-        while(eatableShark != null) {
-            map[babyRow][babyCol] = 0;
+        while(true) {
+            // 1. 먹을 수 있는 상어 뽑기
+            Fish shark = findShark();
+            if(shark == null) break;
 
-            babyRow = eatableShark.row;
-            babyCol = eatableShark.col;
-
-            map[babyRow][babyCol] = 9;
+            // 2. 물고기 먹기
             eatCount++;
-            if(eatCount == babySize) {
-                babySize++;
+            if(eatCount == sharkSize) { // 몸집 키우기
+                sharkSize++;
                 eatCount = 0;
             }
-            dayCount += eatableShark.count;
-            eatableShark = bfs(babySize);
+            time += shark.distance;
+            map[babyShark[0]][babyShark[1]] = 0;
+            babyShark[0] = shark.row;
+            babyShark[1] = shark.col;
+            map[babyShark[0]][babyShark[1]] = 9;
         }
 
-        return dayCount;
+        System.out.print(time);
     }
 
-    private static Position bfs(int babySize) {
-        Queue<Position> queue = new LinkedList<>();
+    private static Fish findShark() {
+        Queue<Fish> queue = new PriorityQueue<>();
+        PriorityQueue<Fish> pq = new PriorityQueue<>();
         boolean[][] visited = new boolean[N][N];
-        queue.offer(new Position(babyRow, babyCol, 0));
-        visited[babyRow][babyCol] = true;
-
-        List<Position> eatable = new ArrayList<>();
-        int minDist = Integer.MAX_VALUE;
+        queue.offer(new Fish(babyShark[0], babyShark[1], 0));
+        visited[babyShark[0]][babyShark[1]] = true;
 
         while(!queue.isEmpty()) {
-            Position currentPos = queue.poll();
+            Fish current = queue.poll();
+//            for(int i = 0; i < N; i++) {
+//                System.out.println(Arrays.toString(visited[i]));
+//            }
+//            System.out.println();
 
-            for(int i = 0; i < 4; i++) {
-                int newRow = currentPos.row + dRowCol[i][0];
-                int newCol = currentPos.col + dRowCol[i][1];
+            for(int[] direction : directions) {
+                int nR = current.row + direction[0];
+                int nC = current.col + direction[1];
 
-                if(newRow < 0 || newCol < 0 || newRow >= N || newCol >= N) continue;
-                if(visited[newRow][newCol]) continue;
-                if(map[newRow][newCol] > babySize) continue;
+                if(nR < 0 || nC < 0 || nR >= N || nC >= N) continue;
+                if(visited[nR][nC]) continue;
+                visited[nR][nC] = true;
 
-                visited[newRow][newCol] = true;
-                int nextCount = currentPos.count + 1;
-
-                if(map[newRow][newCol] != 0 && map[newRow][newCol] < babySize) {
-                    if(nextCount <= minDist) {
-                        minDist = nextCount;
-                        eatable.add(new Position(newRow, newCol, nextCount));
-                    }
-                } else {
-                    queue.offer(new Position(newRow, newCol, nextCount));
+                if(map[nR][nC] == 0) {
+                    queue.offer(new Fish(nR, nC, current.distance + 1));
+                    continue;
+                }
+                if(sharkSize < map[nR][nC]) continue; // 더큰 상어는 못지나감
+                if(sharkSize == map[nR][nC]) { // 크기가 같은 상어는 지나갈 수는 있음
+                    queue.offer(new Fish(nR, nC, current.distance + 1));
+                    continue;
+                }
+                if(sharkSize > map[nR][nC]){
+                    pq.offer(new Fish(nR, nC, current.distance + 1));
                 }
             }
         }
 
-        if (eatable.isEmpty()) return null;
-
-        eatable.sort((a, b) -> {
-            if (a.row != b.row) return Integer.compare(a.row, b.row);
-            return Integer.compare(a.col, b.col);
-        });
-
-        return eatable.get(0);
+        if(pq.isEmpty()) return null;
+        return pq.poll();
     }
 
-    private static class Position {
-        public int row;
-        public int col;
-        public int count;
+    private static class Fish implements Comparable<Fish> {
+        public int row, col;
+        public int distance;
 
-        public Position(int row, int col, int count) {
+        public Fish(int row, int col, int distance) {
             this.row = row;
             this.col = col;
-            this.count = count;
+            this.distance = distance;
+        }
+
+        @Override
+        public int compareTo(Fish o) {
+            if(this.distance != o.distance) {
+                return this.distance - o.distance;
+            }
+
+            if(this.row != o.row) {
+                return this.row - o.row;
+            }
+
+            return this.col - o.col;
         }
     }
 }
