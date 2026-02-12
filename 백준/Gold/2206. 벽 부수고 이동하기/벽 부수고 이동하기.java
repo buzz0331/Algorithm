@@ -3,90 +3,72 @@ import java.io.*;
 
 public class Main {
 
-    private static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    private static final int[][] dRowCol = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
-
-    private static int N, M;
     private static int[][] map;
-    private static boolean[][][] visited; // [row][col][canUseWall?1:0]
+    private static int N, M;
+    private static final int[][] directions = {{0, 1}, {1, 0}, {-1, 0}, {0, -1}};
 
     public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
         N = Integer.parseInt(st.nextToken());
         M = Integer.parseInt(st.nextToken());
-        map = new int[N][M];
-        visited = new boolean[N][M][2];
 
+        map = new int[N][M];
         for(int i = 0; i < N; i++) {
-            String[] s = br.readLine().split("");
+            char[] c = br.readLine().toCharArray();
             for(int j = 0; j < M; j++) {
-                map[i][j] = Integer.parseInt(s[j]);
+                map[i][j] = c[j] - '0';
             }
         }
 
-        System.out.println(bfs());
+        System.out.print(bfs());
     }
 
     private static int bfs() {
-        ArrayDeque<Node> q = new ArrayDeque<>();
-        q.offer(new Node());
-        visited[0][0][1] = true; // 벽이 안 깨진채로 시작
-        int answer = -1;
+        Queue<Node> queue = new ArrayDeque<>();
+        boolean[][][] visited = new boolean[N][M][2]; // 0: 벽 사용 x / 1: 벽 사용 o
+        queue.offer(new Node(0, 0, false, 1));
+        visited[0][0][0] = true;
 
-        while(!q.isEmpty()) {
-            Node node = q.poll();
-            int currentRow = node.row;
-            int currentCol = node.col;
+        while(!queue.isEmpty()) {
+            Node current = queue.poll();
+//            System.out.println("row: " + current.row + " col: " + current.col);
 
-            if(currentRow == N - 1 && currentCol == M - 1) {
-                answer = node.cost;
-                break;
+            if(current.row == N - 1 && current.col == M - 1) {
+                return current.count;
             }
 
-            for (int[] rowCol : dRowCol) {
-                int nextRow = currentRow + rowCol[0];
-                int nextCol = currentCol + rowCol[1];
+            for(int[] direction : directions) {
+                int nR = current.row + direction[0];
+                int nC = current.col + direction[1];
+                boolean usedWall = current.usedWall;
 
-                if (nextRow < 0 || nextCol < 0 || nextRow >= N || nextCol >= M) continue;
+                if(nR < 0 || nC < 0 || nR >= N || nC >= M) continue;
 
-                // 다음 칸이 벽인데 이미 기회를 썼다면 진행 불가
-                if (map[nextRow][nextCol] == 1 && !node.canUseWall) continue;
-
-                boolean nextCanUseWall = node.canUseWall;
-                // 벽을 만나고 아직 기회가 남아있다면 여기서 사용
-                if (map[nextRow][nextCol] == 1 && node.canUseWall) {
-                    nextCanUseWall = false;
+                if(map[nR][nC] == 1) {
+                    if(usedWall) continue; // 이미 벽을 부순 경우
+                    usedWall = true;
                 }
 
-                int state = nextCanUseWall ? 1 : 0;
-                if (visited[nextRow][nextCol][state]) continue;
-                visited[nextRow][nextCol][state] = true;
-
-                q.offer(new Node(nextRow, nextCol, node.cost + 1, nextCanUseWall));
+                if(visited[nR][nC][usedWall ? 1 : 0]) continue;
+                visited[nR][nC][usedWall ? 1 : 0] = true;
+                queue.offer(new Node(nR, nC, usedWall, current.count + 1));
             }
         }
 
-        return answer;
+        return -1;
     }
 
     private static class Node {
-        public int row;
-        public int col;
-        public int cost;
-        public boolean canUseWall;
+        public int row, col;
+        public boolean usedWall;
+        public int count;
 
-        public Node() {
-            this.row = 0;
-            this.col = 0;
-            cost = 1;
-            canUseWall = true;
-        }
-
-        public Node(int row, int col, int cost, boolean canUseWall) {
+        public Node(int row, int col, boolean usedWall, int count) {
             this.row = row;
             this.col = col;
-            this.cost = cost;
-            this.canUseWall = canUseWall;
+            this.usedWall = usedWall;
+            this.count = count;
         }
     }
 }
