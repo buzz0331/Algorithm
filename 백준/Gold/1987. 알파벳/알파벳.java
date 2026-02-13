@@ -3,51 +3,49 @@ import java.io.*;
 
 public class Main {
 
-    private static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    private static char[][] board;
-    private static int R, C;
-    private static int answer = 1;
+    private static int R, C, answer = -1;
+    private static char[][] map;
 
-    private static final int[][] dRowCol = {{0, 1}, {1, 0}, {-1, 0}, {0, -1}};
+    private static final int[][] directions = {{0, 1}, {-1, 0}, {1, 0}, {0, -1}};
 
     public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
         R = Integer.parseInt(st.nextToken());
         C = Integer.parseInt(st.nextToken());
 
-        board = new char[R][C];
-
+        map = new char[R][C];
         for(int i = 0; i < R; i++) {
-            char[] charArray = br.readLine().toCharArray();
-            System.arraycopy(charArray, 0, board[i], 0, C);
+            char[] c = br.readLine().toCharArray();
+            for(int j = 0; j < C; j++) {
+                map[i][j] = c[j];
+            }
         }
 
-        Set<Character> set = new HashSet<>();
-        set.add(board[0][0]);
-        dfs(set, 0, 0, 1);
-
+        int visited = 1 << (map[0][0] - 'A');
+        dfs(0, 0, 1, visited);
         System.out.print(answer);
     }
 
-    private static void dfs(Set<Character> set, int row, int col, int count) {
-        for(int[] rowCol : dRowCol) {
+    private static void dfs(int row, int col, int count, int visited) {
+        boolean canMove = false;
+        for(int[] direction : directions) {
+            int nR = row + direction[0];
+            int nC = col + direction[1];
 
-            int nextRow = row + rowCol[0];
-            int nextCol = col + rowCol[1];
+            if(nR < 0 || nC < 0 || nR >= R || nC >= C) continue;
+            int cIdx = map[nR][nC] - 'A';
+            if((visited & (1 << cIdx)) != 0) continue; // 이미 얻은 알파벳이면 패스
 
-            if(nextRow < 0 || nextCol < 0 || nextRow >= R || nextCol >= C) continue;
+            canMove = true;
+            visited |= (1 << cIdx);
+            dfs(nR, nC, count + 1, visited);
+            visited ^= (1 << cIdx);
+        }
 
-            char nextChar = board[nextRow][nextCol];
-            if (set.contains(nextChar)) {
-                answer = Math.max(answer, count);
-                continue;
-            }
-
-            set.add(nextChar);
-            count++;
-            dfs(set, nextRow, nextCol, count);
-            set.remove(nextChar);
-            count--;
+        // 더이상 못 움직이면 지금까지 움직인 횟수로 정답 갱신
+        if(!canMove) {
+            answer = Math.max(answer, count);
         }
     }
 }
