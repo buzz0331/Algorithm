@@ -50,10 +50,9 @@ public class Main {
 
     private static boolean bfs() {
         updateWater();
-        Queue<int[]> temp = new ArrayDeque<>(moveQ);
-        moveQ.clear();
-        while(!temp.isEmpty()) {
-            int[] current = temp.poll();
+        int size = moveQ.size();
+        while(size --> 0) {
+            int[] current = moveQ.poll();
 
             if(current[0] == D[0] && current[1] == D[1]) {
                 return true;
@@ -75,10 +74,9 @@ public class Main {
     }
 
     private static void updateWater() {
-        Queue<int[]> temp = new ArrayDeque<>(waters);
-        waters.clear();
-        while(!temp.isEmpty()) {
-            int[] current = temp.poll();
+        int size = waters.size();
+        while(size --> 0) {
+            int[] current = waters.poll();
 
             for(int[] direction : directions) {
                 int nR = current[0] + direction[0];
