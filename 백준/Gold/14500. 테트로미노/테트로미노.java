@@ -12,13 +12,15 @@ public class Main {
     static int[] dx = {0, 0, 1, -1}; // 동, 서, 남, 북
     static int[] dy = {1, -1, 0, 0};
 
+    static int maxValue = -1;
+
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
 
         st = new StringTokenizer(br.readLine());
-        N = Integer.parseInt(st.nextToken()); 
-        M = Integer.parseInt(st.nextToken()); 
+        N = Integer.parseInt(st.nextToken());
+        M = Integer.parseInt(st.nextToken());
 
         map = new int[N][M];
         visited = new boolean[N][M];
@@ -28,6 +30,7 @@ public class Main {
             st = new StringTokenizer(br.readLine());
             for (int j = 0; j < M; j++) {
                 map[i][j] = Integer.parseInt(st.nextToken());
+                maxValue = Math.max(map[i][j], maxValue);
             }
         }
 
@@ -37,7 +40,7 @@ public class Main {
                 visited[i][j] = true;
                 dfs(i, j, map[i][j], 1);
                 visited[i][j] = false;
-                checkExtraShape(i, j); // ㅗ, ㅓ, ㅏ, ㅜ 
+                checkExtraShape(i, j); // ㅗ, ㅓ, ㅏ, ㅜ
             }
         }
 
@@ -46,6 +49,8 @@ public class Main {
 
     // DFS로 4칸까지 이동하면서 최대값 갱신
     static void dfs(int x, int y, int sum, int depth) {
+        if(sum + maxValue * (4 - depth) <= max) return;
+
         if (depth == 4) {
             max = Math.max(max, sum);
             return;
