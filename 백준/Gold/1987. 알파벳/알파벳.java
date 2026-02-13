@@ -5,6 +5,7 @@ public class Main {
 
     private static int R, C, answer = -1;
     private static char[][] map;
+    private static boolean[] visited;
 
     private static final int[][] directions = {{0, 1}, {-1, 0}, {1, 0}, {0, -1}};
 
@@ -15,6 +16,8 @@ public class Main {
         C = Integer.parseInt(st.nextToken());
 
         map = new char[R][C];
+        visited = new boolean[26];
+
         for(int i = 0; i < R; i++) {
             char[] c = br.readLine().toCharArray();
             for(int j = 0; j < C; j++) {
@@ -22,12 +25,13 @@ public class Main {
             }
         }
 
-        int visited = 1 << (map[0][0] - 'A');
-        dfs(0, 0, 1, visited);
+        int cIdx = map[0][0] - 'A';
+        visited[cIdx] = true;
+        dfs(0, 0, 1);
         System.out.print(answer);
     }
 
-    private static void dfs(int row, int col, int count, int visited) {
+    private static void dfs(int row, int col, int count) {
         boolean canMove = false;
         for(int[] direction : directions) {
             int nR = row + direction[0];
@@ -35,12 +39,12 @@ public class Main {
 
             if(nR < 0 || nC < 0 || nR >= R || nC >= C) continue;
             int cIdx = map[nR][nC] - 'A';
-            if((visited & (1 << cIdx)) != 0) continue; // 이미 얻은 알파벳이면 패스
+            if(visited[cIdx]) continue; // 이미 얻은 알파벳이면 패스
 
             canMove = true;
-            visited |= (1 << cIdx);
-            dfs(nR, nC, count + 1, visited);
-            visited ^= (1 << cIdx);
+            visited[cIdx] = true;
+            dfs(nR, nC, count + 1);
+            visited[cIdx] = false;
         }
 
         // 더이상 못 움직이면 지금까지 움직인 횟수로 정답 갱신
