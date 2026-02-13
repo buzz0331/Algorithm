@@ -1,94 +1,74 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.IOException;
-import java.util.StringTokenizer;
+import java.util.*;
+import java.io.*;
 
 public class Main {
-    static int[][] map;
-    static boolean[][] visited;
-    static int N, M;
-    static int max = 0;
 
-    static int[] dx = {0, 0, 1, -1}; // 동, 서, 남, 북
-    static int[] dy = {1, -1, 0, 0};
+    private static int[][] map;
+    private static int answer = -1, N, M;
+    private static boolean[][] visited;
+    private static int[][] directions = {{0, 1}, {1, 0}, {-1, 0}, {0, -1}};
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st;
-
-        st = new StringTokenizer(br.readLine());
-        N = Integer.parseInt(st.nextToken()); 
-        M = Integer.parseInt(st.nextToken()); 
-
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        N = Integer.parseInt(st.nextToken());
+        M = Integer.parseInt(st.nextToken());
         map = new int[N][M];
         visited = new boolean[N][M];
 
-        // 입력 받기
-        for (int i = 0; i < N; i++) {
+        for(int i = 0; i < N; i++) {
             st = new StringTokenizer(br.readLine());
-            for (int j = 0; j < M; j++) {
+            for(int j = 0; j < M; j++) {
                 map[i][j] = Integer.parseInt(st.nextToken());
             }
         }
 
-        // 전체 탐색
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < M; j++) {
+        for(int i = 0; i < N; i++) {
+            for(int j = 0; j < M; j++) {
                 visited[i][j] = true;
-                dfs(i, j, map[i][j], 1);
+                dfs(i, j, 1, map[i][j]);
                 visited[i][j] = false;
-                checkExtraShape(i, j); // ㅗ, ㅓ, ㅏ, ㅜ 
+
+                checkExtraShape(i, j);
             }
         }
 
-        System.out.println(max);
+
+        System.out.print(answer);
     }
 
-    // DFS로 4칸까지 이동하면서 최대값 갱신
-    static void dfs(int x, int y, int sum, int depth) {
-        if (depth == 4) {
-            max = Math.max(max, sum);
+    private static void dfs(int row, int col, int depth, int sum) {
+        if(depth == 4) {
+            answer = Math.max(answer, sum);
             return;
         }
 
-        for (int dir = 0; dir < 4; dir++) {
-            int nx = x + dx[dir];
-            int ny = y + dy[dir];
+        for(int[] direction : directions) {
+            int nR = row + direction[0];
+            int nC = col + direction[1];
 
-            if (nx >= 0 && ny >= 0 && nx < N && ny < M) {
-                if (!visited[nx][ny]) {
-                    visited[nx][ny] = true;
-                    dfs(nx, ny, sum + map[nx][ny], depth + 1);
-                    visited[nx][ny] = false;
-                }
-            }
+            if(nR < 0 || nC < 0 || nR >= N || nC >= M) continue;
+            if(visited[nR][nC]) continue;
+
+            visited[nR][nC] = true;
+            dfs(nR, nC, depth + 1, sum + map[nR][nC]);
+            visited[nR][nC] = false;
         }
     }
 
-    // DFS로는 만들 수 없는 'ㅗ', 'ㅜ', 'ㅏ', 'ㅓ' 모양 따로 처리
-    static void checkExtraShape(int x, int y) {
-        // 중심 + 3방향
-        int center = map[x][y];
+    private static void checkExtraShape(int row, int col) {
+        for(int i = 0; i < 4; i++) {
+            int sum = map[row][col];
 
-        for (int i = 0; i < 4; i++) {
-            int sum = center;
-            boolean isValid = true;
+            for(int j = 0; j < 3; j++) {
+                int dIdx = (i + j) % 4;
+                int nR = row + directions[dIdx][0];
+                int nC = col + directions[dIdx][1];
 
-            for (int j = 0; j < 3; j++) {
-                int dir = (i + j) % 4;
-                int nx = x + dx[dir];
-                int ny = y + dy[dir];
+                if(nR < 0 || nC < 0 || nR >= N || nC >= M) break;
 
-                if (nx >= 0 && ny >= 0 && nx < N && ny < M) {
-                    sum += map[nx][ny];
-                } else {
-                    isValid = false;
-                    break;
-                }
-            }
-
-            if (isValid) {
-                max = Math.max(max, sum);
+                sum += map[nR][nC];
+                if(j == 2) answer = Math.max(answer, sum);
             }
         }
     }
