@@ -58,13 +58,13 @@ public class Main {
 
                 // 열쇠
                 if(cell >= 'a' && cell <= 'z') {
-                    int keyIdx = map[nR][nC] - 'a';
+                    int keyIdx = cell - 'a';
                     nKey = current.key | (1 << keyIdx);
                 }
 
                 // 문
-                if (map[nR][nC] >= 'A' && map[nR][nC] <= 'Z') {
-                    int keyIdx = map[nR][nC] - 'A';
+                if (cell >= 'A' && cell <= 'Z') {
+                    int keyIdx = cell - 'A';
                     int currentKey = current.key;
                     boolean hasKey = (currentKey & (1 << keyIdx)) != 0;
                     if(!hasKey) continue; // 열쇠 가지고 있지 않으면 못 지나감
