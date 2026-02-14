@@ -5,18 +5,18 @@ public class Main {
 
     private static int[] sequence = new int[9];
     private static boolean[] visited = new boolean[9];
-    private static int N, answer = 0;
-    private static int[][] ining;
+    private static int N, answer = 0, score;
+    private static int[][] inning;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         N = Integer.parseInt(br.readLine());
-        ining = new int[N][10];
+        inning = new int[N][10];
 
         for(int i = 0; i < N; i++) {
             StringTokenizer st = new StringTokenizer(br.readLine());
             for(int j = 0; j < 9; j++) {
-                ining[i][j] = Integer.parseInt(st.nextToken());
+                inning[i][j] = Integer.parseInt(st.nextToken());
             }
         }
 
@@ -49,67 +49,34 @@ public class Main {
 
     private static void simulation() {
         int sIdx = 0;
-        int totalScore = 0;
-        for(int i = 0; i < N; i++) {
-            int outCount = 0; // 아웃 카운트
-            boolean[] field = new boolean[3]; // 각 루의 진출 여부
-            int score = 0;
-            int[] iningInfo = ining[i];
-            while(outCount < 3) {
-                int currentPlayer = sequence[sIdx];
-
-                switch(iningInfo[currentPlayer]) {
-                    case 0: // 아웃
-                        outCount++;
-                        break;
-                    case 1: // 안타
-                        score += move(field, 1);
-                        break;
-                    case 2: // 2루타
-                        score += move(field, 2);
-                        break;
-                    case 3:
-                        score += move(field, 3);
-                        break;
-                    case 4:
-                        int count = 1;
-                        for(int f = 0; f < 3; f++) {
-                            if(field[f]) {
-                                count++;
-                                field[f] = false;
-                            }
-                        }
-                        score += count;
-                        break;
-                }
-
-                sIdx = (sIdx + 1) % 9;
-            }
-            totalScore += score;
+        score = 0;
+        for (int i = 0; i < N; i++) {
+            sIdx = startInning(sIdx, i);
         }
-        answer = Math.max(answer, totalScore);
-
+        answer = Math.max(answer, score);
     }
 
-    private static int move(boolean[] field, int power) {
-        int score = 0;
+    private static int startInning(int sIdx, int i) {
+        int outCount = 0; // 아웃 카운트
+        int field = 0;
+        while (outCount < 3) {
+            int currentPlayer = sequence[sIdx];
+            int result = inning[i][currentPlayer];
 
-        // 홈 이동 가능한 진루 주자 이동
-        for(int i = 0; i < power; i++) {
-            if(field[2 - i]) {
-                score++;
-                field[2 - i] = false;
+            if(result == 0) {
+                outCount++;
+                sIdx = (sIdx + 1) % 9;
+                continue;
             }
-        }
 
-        // 진루 이동
-        for(int f = 2; f >= power; f--) {
-            field[f] = field[f - power];
-            field[f - power] = false;
-        }
+            field <<= result; // 기존 진루 주자 이동
+            field |= 1 << (result - 1); // 타자 진출
 
-        // 타자 이동
-        field[power - 1] = true;
-        return score;
+            score += Integer.bitCount(field >> 3);
+            field &= 7;
+
+            sIdx = (sIdx + 1) % 9;
+        }
+        return sIdx;
     }
 }
