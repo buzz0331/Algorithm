@@ -5,24 +5,9 @@ public class Main {
 
     private static int[][] map = new int[10][10];
     private static boolean[][] visited = new boolean[10][10];
-    private static List<int[]>[] directions = new ArrayList[5];
     private static int[] colorPapers = new int[5];
 
     private static int ans = Integer.MAX_VALUE;
-
-    private static void init() {
-        for (int n = 0; n < 5; n++) {
-            List<int[]> list = new ArrayList<>();
-            for (int i = 0; i < n + 1; i++) {
-                for (int j = 0; j < n + 1; j++) {
-                    list.add(new int[]{i, j});
-                }
-            }
-            directions[n] = list;
-        }
-
-        Arrays.fill(colorPapers, 5);
-    }
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -33,7 +18,7 @@ public class Main {
             }
         }
 
-        init();
+        Arrays.fill(colorPapers, 5);
         dfs(0);
 
         System.out.println(ans == Integer.MAX_VALUE ? -1 : ans);
@@ -45,10 +30,12 @@ public class Main {
         // 1) 아직 덮지 않은 1칸 찾기
         int r = -1, c = -1;
         boolean found = false;
+
         Search:for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 10; j++) {
                 if (map[i][j] == 1 && !visited[i][j]) {
-                    r = i; c = j;
+                    r = i;
+                    c = j;
                     found = true;
                     break Search;
                 }
@@ -80,23 +67,23 @@ public class Main {
     }
 
     private static boolean canAttach(int size, int r, int c) {
-        List<int[]> direction = directions[size - 1];
-        for (int[] d : direction) {
-            int nR = r + d[0];
-            int nC = c + d[1];
-            if (nR < 0 || nC < 0 || nR >= 10 || nC >= 10) return false;
-            if (map[nR][nC] == 0) return false;
-            if (visited[nR][nC]) return false;
+        // 범위 체크 + map==1 + 미방문 체크
+        if (r + size > 10 || c + size > 10) return false;
+
+        for (int i = r; i < r + size; i++) {
+            for (int j = c; j < c + size; j++) {
+                if (map[i][j] == 0) return false;
+                if (visited[i][j]) return false;
+            }
         }
         return true;
     }
 
     private static void setPaper(int size, int r, int c, boolean value) {
-        List<int[]> direction = directions[size - 1];
-        for (int[] d : direction) {
-            int nr = r + d[0];
-            int nc = c + d[1];
-            visited[nr][nc] = value;
+        for (int i = r; i < r + size; i++) {
+            for (int j = c; j < c + size; j++) {
+                visited[i][j] = value;
+            }
         }
     }
 }
