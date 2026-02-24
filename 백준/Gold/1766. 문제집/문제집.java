@@ -3,47 +3,55 @@ import java.io.*;
 
 public class Main {
 
-    private static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    private static PriorityQueue<Integer> pq = new PriorityQueue<>();
-
     public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
 
-        int N = Integer.parseInt(st.nextToken()); // 문제의 수
-        int M = Integer.parseInt(st.nextToken()); // 문제 순서 정보
+        int N = Integer.parseInt(st.nextToken());
+        int M = Integer.parseInt(st.nextToken());
 
-        List<Integer>[] problems = new ArrayList[N + 1];
+        boolean[] visited = new boolean[N + 1];
         int[] indegree = new int[N + 1];
-        Arrays.setAll(problems, i -> new ArrayList<>());
+        List<Integer>[] adj = new ArrayList[N + 1];
+        for(int i = 1; i <= N; i++) {
+            adj[i] = new ArrayList<>();
+        }
 
-        for (int i = 0; i < M; i++) {
+        for(int i = 0; i < M; i++) {
             st = new StringTokenizer(br.readLine());
-            int x = Integer.parseInt(st.nextToken()); // 우선순위 높은 수
-            int y = Integer.parseInt(st.nextToken()); // 우선순위 낮은 수
+            int a = Integer.parseInt(st.nextToken());
+            int b = Integer.parseInt(st.nextToken());
 
-            problems[x].add(y);
-            indegree[y]++;
+            indegree[b]++;
+            adj[a].add(b);
         }
 
-        putZeroIndegreeNode(indegree);
-        StringBuilder sb = new StringBuilder();
-
-        while(!pq.isEmpty()) {
-            Integer node = pq.poll();
-            sb.append(node).append(" ");
-
-            for(Integer next : problems[node]) {
-                indegree[next]--;
-                if(indegree[next] == 0) pq.offer(next);
-            }
-        }
-        System.out.print(sb);
-    }
-
-    private static void putZeroIndegreeNode(int[] indegree) {
-        for(int i = 1; i < indegree.length; i++) {
+        PriorityQueue<Integer> pq = new PriorityQueue<>();
+        for(int i = 1; i <= N; i++) {
             if(indegree[i] == 0) pq.offer(i);
         }
-    }
 
+        StringBuilder sb = new StringBuilder();
+        while(true) {
+            if(pq.isEmpty()) { // 비었을 때 모든 문제집 방문했는지 탐색
+                for(int i = 1; i <= N; i++) {
+                    if(!visited[i]) {
+                        pq.offer(i);
+                        break;
+                    }
+                }
+                break; // 모든 문제집 탐색 완료
+            }
+
+            Integer num = pq.poll();
+            sb.append(num).append(" ");
+            for(int a : adj[num]) {
+                if(--indegree[a] == 0) {
+                    pq.offer(a);
+                }
+            }
+
+        }
+        System.out.println(sb);
+    }
 }
