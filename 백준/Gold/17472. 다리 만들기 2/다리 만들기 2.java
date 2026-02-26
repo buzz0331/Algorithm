@@ -3,7 +3,7 @@ import java.io.*;
 
 public class Main {
 
-    private static int[][] map;
+    private static int[][] map, bridge;
     private static boolean[][] visited;
     private static final int[][] directions = {{0, 1}, {1, 0}, {-1, 0}, {0, -1}};
     private static int N, M;
@@ -35,7 +35,12 @@ public class Main {
             }
         }
 
-        getBridgeLength();
+        bridge = new int[groupNum + 1][groupNum + 1];
+        for(int i = 1; i <= groupNum; i++) {
+            Arrays.fill(bridge[i], Integer.MAX_VALUE);
+        }
+
+        getBridgeLength(groupNum);
 
         parents = new int[groupNum + 1];
         for(int i = 1; i <= groupNum; i++) {
@@ -84,11 +89,19 @@ public class Main {
     }
 
     // 그룹 간 놓을 수 있는 다리 길이 계산
-    private static void getBridgeLength() {
+    private static void getBridgeLength(int groupCount) {
         for(int r = 0; r < N; r++) {
             for(int c = 0; c < M; c++) {
                 if(map[r][c] != 0) {
                     searchForDiffGroup(r, c);
+                }
+            }
+        }
+
+        for(int i = 1; i <= groupCount; i++) {
+            for(int j = i + 1; j <= groupCount; j++) {
+                if(bridge[i][j] != Integer.MAX_VALUE) {
+                    pq.offer(new int[]{i, j, bridge[i][j]});
                 }
             }
         }
@@ -115,7 +128,11 @@ public class Main {
 
             if(reach) { // 다른 그룹에 도달하면 거리 계산
                 int distance = Math.abs(r - nR) + Math.abs(c - nC) - 1;
-                if(distance > 1) pq.offer(new int[]{groupNum, map[nR][nC], distance});
+                if(distance > 1) {
+                    int diffGroup = map[nR][nC];
+                    bridge[groupNum][diffGroup] = Math.min(bridge[groupNum][diffGroup], distance);
+                    bridge[diffGroup][groupNum] = Math.min(bridge[diffGroup][groupNum], distance);
+                }
             }
         }
     }
