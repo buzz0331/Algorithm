@@ -32,7 +32,7 @@ public class Main {
             }
         }
 
-        System.out.print(String.format("%.2f", prim()));
+        System.out.println(Math.round(prim() * 100) / 100.0);
     }
 
     private static double prim() {
