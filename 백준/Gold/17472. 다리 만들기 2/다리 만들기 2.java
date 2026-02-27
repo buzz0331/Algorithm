@@ -3,7 +3,7 @@ import java.io.*;
 
 public class Main {
 
-    private static int[][] map, bridge;
+    private static int[][] map;
     private static boolean[][] visited;
     private static final int[][] directions = {{0, 1}, {1, 0}, {-1, 0}, {0, -1}};
     private static int N, M;
@@ -35,12 +35,7 @@ public class Main {
             }
         }
 
-        bridge = new int[groupNum + 1][groupNum + 1];
-        for(int i = 1; i <= groupNum; i++) {
-            Arrays.fill(bridge[i], Integer.MAX_VALUE);
-        }
-
-        getBridgeLength(groupNum);
+        getBridgeLength();
 
         parents = new int[groupNum + 1];
         for(int i = 1; i <= groupNum; i++) {
@@ -89,49 +84,50 @@ public class Main {
     }
 
     // 그룹 간 놓을 수 있는 다리 길이 계산
-    private static void getBridgeLength(int groupCount) {
+    private static void getBridgeLength() {
+        int prevGroupNum, prevGroupLocation; // 이전에 마주친 그룹 정보
+        // 행 기준 탐색
         for(int r = 0; r < N; r++) {
+            prevGroupNum = 0;
+            prevGroupLocation = 0;
             for(int c = 0; c < M; c++) {
-                if(map[r][c] != 0) {
-                    searchForDiffGroup(r, c);
+
+                // 그룹 o -> 이전 그룹 있는 경우
+                if(map[r][c] > 0 && prevGroupNum != 0) {
+                    if(prevGroupNum == map[r][c]) prevGroupLocation = c; // 같은 그룹 내부
+                    int distance = Math.abs(c - prevGroupLocation) - 1;
+                    if(distance > 1) pq.offer(new int[]{prevGroupNum, map[r][c], distance});
+                    prevGroupNum = 0;
+                    prevGroupLocation = 0;
+                }
+
+                // 그룹 o -> 이전 그룹 없는 경우
+                if(map[r][c] > 0 && prevGroupNum == 0) {
+                    prevGroupLocation = c;
+                    prevGroupNum = map[r][c];
                 }
             }
         }
 
-        for(int i = 1; i <= groupCount; i++) {
-            for(int j = i + 1; j <= groupCount; j++) {
-                if(bridge[i][j] != Integer.MAX_VALUE) {
-                    pq.offer(new int[]{i, j, bridge[i][j]});
+        // 행 기준 탐색
+        for(int c = 0; c < M; c++) {
+            prevGroupNum = 0;
+            prevGroupLocation = 0;
+            for(int r = 0; r < N; r++) {
+
+                // 그룹 o -> 이전 그룹 있는 경우
+                if(map[r][c] > 0 && prevGroupNum != 0) {
+                    if(prevGroupNum == map[r][c]) prevGroupLocation = r; // 같은 그룹 내부
+                    int distance = Math.abs(r - prevGroupLocation) - 1;
+                    if(distance > 1) pq.offer(new int[]{prevGroupNum, map[r][c], distance});
+                    prevGroupNum = 0;
+                    prevGroupLocation = 0;
                 }
-            }
-        }
-    }
 
-    // 4방향으로 타그룹 탐색
-    private static void searchForDiffGroup(int r, int c) {
-        int groupNum = map[r][c];
-
-        for(int[] direction : directions) {
-            int nR = r, nC = c;
-            boolean reach = false; // 다른 그룹에 도달했는지 여부
-            while(true) {
-                nR += direction[0];
-                nC += direction[1];
-
-                if(nR < 0 || nC < 0 || nR >= N || nC >= M) break;
-                if(map[nR][nC] == groupNum) break;
-                if(map[nR][nC] != 0) {
-                    reach = true;
-                    break;
-                }
-            }
-
-            if(reach) { // 다른 그룹에 도달하면 거리 계산
-                int distance = Math.abs(r - nR) + Math.abs(c - nC) - 1;
-                if(distance > 1) {
-                    int diffGroup = map[nR][nC];
-                    bridge[groupNum][diffGroup] = Math.min(bridge[groupNum][diffGroup], distance);
-                    bridge[diffGroup][groupNum] = Math.min(bridge[diffGroup][groupNum], distance);
+                // 그룹 o -> 이전 그룹 없는 경우
+                if(map[r][c] > 0 && prevGroupNum == 0) {
+                    prevGroupLocation = r;
+                    prevGroupNum = map[r][c];
                 }
             }
         }
