@@ -3,7 +3,7 @@ import java.io.*;
 
 public class Main {
 
-    private static final int INF = 10_000_000;
+    private static final int INF = 10001;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
