@@ -8,7 +8,7 @@ public class Main {
     private static final int[][] directions = {{0, 1}, {1, 0}, {-1, 0}, {0, -1}};
     private static int N, M;
 
-    private static PriorityQueue<int[]> pq = new PriorityQueue<>(Comparator.comparingInt(a -> a[2]));
+    private static PriorityQueue<Edge> pq = new PriorityQueue<>();
     private static int[] parents;
 
     public static void main(String[] args) throws IOException {
@@ -49,10 +49,10 @@ public class Main {
         int count = 0;
         int sum = 0;
         while(!pq.isEmpty()) {
-            int[] current = pq.poll();
+            Edge current = pq.poll();
 
-            if (union(current[0], current[1])) {
-                sum += current[2];
+            if (union(current.from, current.to)) {
+                sum += current.cost;
                 count++;
             }
 
@@ -108,7 +108,7 @@ public class Main {
                     if(distance > 1) {
                         int a = prevGroupNum;
                         int b = map[r][c];
-                        pq.offer(new int[]{a, b, distance});
+                        pq.offer(new Edge(a, b, distance));
                     }
 
                     prevGroupNum = map[r][c];
@@ -145,7 +145,7 @@ public class Main {
                     if(distance > 1) {
                         int a = prevGroupNum;
                         int b = map[r][c];
-                        pq.offer(new int[]{a, b, distance});
+                        pq.offer(new Edge(a, b, distance));
                     }
 
                     prevGroupNum = map[r][c];
@@ -181,6 +181,21 @@ public class Main {
                 visited[nR][nC] = true;
                 queue.offer(new int[]{nR, nC});
             }
+        }
+    }
+
+    private static class Edge implements Comparable<Edge> {
+        public int from, to, cost;
+
+        public Edge(int from, int to, int cost) {
+            this.from = from;
+            this.to = to;
+            this.cost = cost;
+        }
+
+        @Override
+        public int compareTo(Edge o) {
+            return Integer.compare(this.cost, o.cost);
         }
     }
 }
