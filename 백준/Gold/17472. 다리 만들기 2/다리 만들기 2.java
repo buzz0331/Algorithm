@@ -85,49 +85,78 @@ public class Main {
 
     // 그룹 간 놓을 수 있는 다리 길이 계산
     private static void getBridgeLength() {
-        int prevGroupNum, prevGroupLocation; // 이전에 마주친 그룹 정보
+        int prevGroupNum, distance;
+
         // 행 기준 탐색
         for(int r = 0; r < N; r++) {
             prevGroupNum = 0;
-            prevGroupLocation = 0;
+            distance = 0;
+
             for(int c = 0; c < M; c++) {
+                if(map[r][c] == 0) {
+                    if(prevGroupNum != 0) distance++;
+                    continue;
+                }
 
                 // 그룹 o -> 이전 그룹 있는 경우
                 if(map[r][c] > 0 && prevGroupNum != 0) {
-                    if(prevGroupNum == map[r][c]) prevGroupLocation = c; // 같은 그룹 내부
-                    int distance = Math.abs(c - prevGroupLocation) - 1;
-                    if(distance > 1) pq.offer(new int[]{prevGroupNum, map[r][c], distance});
-                    prevGroupNum = 0;
-                    prevGroupLocation = 0;
+                    if(prevGroupNum == map[r][c]) { // 같은 그룹 내부
+                        distance = 0;
+                        continue;
+                    }
+
+                    if(distance > 1) {
+                        int a = prevGroupNum;
+                        int b = map[r][c];
+                        pq.offer(new int[]{a, b, distance});
+                    }
+
+                    prevGroupNum = map[r][c];
+                    distance = 0;
+                    continue;
                 }
 
                 // 그룹 o -> 이전 그룹 없는 경우
                 if(map[r][c] > 0 && prevGroupNum == 0) {
-                    prevGroupLocation = c;
                     prevGroupNum = map[r][c];
+                    distance = 0;
                 }
             }
         }
 
-        // 행 기준 탐색
+        // 열 기준 탐색
         for(int c = 0; c < M; c++) {
             prevGroupNum = 0;
-            prevGroupLocation = 0;
+            distance = 0;
+
             for(int r = 0; r < N; r++) {
+                if(map[r][c] == 0) {
+                    if(prevGroupNum != 0) distance++;
+                    continue;
+                }
 
                 // 그룹 o -> 이전 그룹 있는 경우
                 if(map[r][c] > 0 && prevGroupNum != 0) {
-                    if(prevGroupNum == map[r][c]) prevGroupLocation = r; // 같은 그룹 내부
-                    int distance = Math.abs(r - prevGroupLocation) - 1;
-                    if(distance > 1) pq.offer(new int[]{prevGroupNum, map[r][c], distance});
-                    prevGroupNum = 0;
-                    prevGroupLocation = 0;
+                    if(prevGroupNum == map[r][c]) { // 같은 그룹 내부
+                        distance = 0;
+                        continue;
+                    }
+
+                    if(distance > 1) {
+                        int a = prevGroupNum;
+                        int b = map[r][c];
+                        pq.offer(new int[]{a, b, distance});
+                    }
+
+                    prevGroupNum = map[r][c];
+                    distance = 0;
+                    continue;
                 }
 
                 // 그룹 o -> 이전 그룹 없는 경우
                 if(map[r][c] > 0 && prevGroupNum == 0) {
-                    prevGroupLocation = r;
                     prevGroupNum = map[r][c];
+                    distance = 0;
                 }
             }
         }
