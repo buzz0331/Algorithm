@@ -3,8 +3,7 @@ import java.io.*;
 
 public class Main {
 
-    private static List<Edge>[] adjacents;
-    private static int[][] dist;
+    private static List<Edge>[] graph, reverseGraph;
     private static int N, M, X;
 
     public static void main(String[] args) throws IOException {
@@ -15,12 +14,12 @@ public class Main {
         M = Integer.parseInt(st.nextToken());
         X = Integer.parseInt(st.nextToken());
 
-        adjacents = new ArrayList[N + 1];
-        dist = new int[N + 1][N + 1];
+        graph = new ArrayList[N + 1];
+        reverseGraph = new ArrayList[N + 1];
 
         for(int i = 1; i <= N; i++) {
-            adjacents[i] = new ArrayList<>();
-            Arrays.fill(dist[i], Integer.MAX_VALUE);
+            graph[i] = new ArrayList<>();
+            reverseGraph[i] = new ArrayList<>();
         }
 
         for(int i = 0; i < M; i++) {
@@ -29,28 +28,32 @@ public class Main {
             int y = Integer.parseInt(st.nextToken());
             int cost = Integer.parseInt(st.nextToken());
 
-            adjacents[x].add(new Edge(y, cost));
+            graph[x].add(new Edge(y, cost));
+            reverseGraph[y].add(new Edge(x, cost));
         }
 
-        for(int start = 1; start <= N; start++) {
-            dijkstra(start);
-        }
+        int[] go = dijkstra(graph);
+        int[] back = dijkstra(reverseGraph);
 
         int max = -1;
         for(int start = 1; start <= N; start++) {
             if(start == X) continue;
 
-            max = Math.max(max, dist[start][X] + dist[X][start]);
+            max = Math.max(max, go[start] + back[start]);
         }
 
         System.out.print(max);
     }
 
-    private static void dijkstra(int start) {
+    private static int[] dijkstra(List<Edge>[] graph) {
         PriorityQueue<Edge> pq = new PriorityQueue<>();
         boolean[] visited = new boolean[N + 1];
-        pq.offer(new Edge(start, 0));
-        dist[start][start] = 0;
+
+        int[] dist = new int[N + 1];
+        Arrays.fill(dist, Integer.MAX_VALUE);
+
+        dist[X]= 0;
+        pq.offer(new Edge(X, 0));
 
         while(!pq.isEmpty()) {
             Edge current = pq.poll();
@@ -58,14 +61,15 @@ public class Main {
             if(visited[current.to]) continue;
             visited[current.to] = true;
 
-            for(Edge next : adjacents[current.to]) {
-                int newDist = dist[start][current.to] + next.cost;
-                if(dist[start][next.to] > newDist) {
-                    dist[start][next.to] = newDist;
+            for(Edge next : graph[current.to]) {
+                int newDist = dist[current.to] + next.cost;
+                if(dist[next.to] > newDist) {
+                    dist[next.to] = newDist;
                     pq.offer(new Edge(next.to, newDist));
                 }
             }
         }
+        return dist;
     }
 
     private static class Edge implements Comparable<Edge> {
