@@ -2,86 +2,83 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-    private static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    private static ArrayList<Node>[] graph;
+
+    private static List<Edge>[] adjacents;
+    private static int[][] dist;
+    private static int N, M, X;
 
     public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
 
-        int N = Integer.parseInt(st.nextToken());
-        int M = Integer.parseInt(st.nextToken());
-        int X = Integer.parseInt(st.nextToken());
+        N = Integer.parseInt(st.nextToken());
+        M = Integer.parseInt(st.nextToken());
+        X = Integer.parseInt(st.nextToken());
 
-        graph = new ArrayList[N + 1];
-        for(int i = 0; i < N + 1; i++) {
-            graph[i] = new ArrayList<>();
+        adjacents = new ArrayList[N + 1];
+        dist = new int[N + 1][N + 1];
+
+        for(int i = 1; i <= N; i++) {
+            adjacents[i] = new ArrayList<>();
+            Arrays.fill(dist[i], Integer.MAX_VALUE);
         }
 
-        while(M --> 0) {
+        for(int i = 0; i < M; i++) {
             st = new StringTokenizer(br.readLine());
-            graph[Integer.parseInt(st.nextToken())].add(
-                    new Node(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()))
-            );
+            int x = Integer.parseInt(st.nextToken());
+            int y = Integer.parseInt(st.nextToken());
+            int cost = Integer.parseInt(st.nextToken());
+
+            adjacents[x].add(new Edge(y, cost));
         }
 
-        int[][] dist = dijkstra(N);
+        for(int start = 1; start <= N; start++) {
+            dijkstra(start);
+        }
 
-        System.out.println(findMaxStudent(dist, X));
+        int max = -1;
+        for(int start = 1; start <= N; start++) {
+            if(start == X) continue;
+
+            max = Math.max(max, dist[start][X] + dist[X][start]);
+        }
+
+        System.out.print(max);
     }
 
-    private static int[][] dijkstra(int N){
-        int[][] dist = new int[N + 1][N + 1];
+    private static void dijkstra(int start) {
+        PriorityQueue<Edge> pq = new PriorityQueue<>();
+        boolean[] visited = new boolean[N + 1];
+        pq.offer(new Edge(start, 0));
+        dist[start][start] = 0;
 
-        for(int i = 1; i < N + 1; i++){ //각 학생을 시작점으로 반복
-            boolean[] visited = new boolean[N + 1];
-            PriorityQueue<Node> pq = new PriorityQueue<>();
+        while(!pq.isEmpty()) {
+            Edge current = pq.poll();
 
-            Arrays.fill(dist[i], Integer.MAX_VALUE);
-            pq.offer(new Node(i, 0));
-            dist[i][i] = 0;
+            if(visited[current.to]) continue;
+            visited[current.to] = true;
 
-            while(!pq.isEmpty()) {
-                Node current = pq.poll();
-                int currentIdx = current.index;
-
-                if(visited[currentIdx]) continue;
-                visited[currentIdx] = true;
-
-                for(Node neighbor : graph[currentIdx]) {
-                    int newDist = dist[i][currentIdx] + neighbor.cost;
-                    if(dist[i][neighbor.index] > newDist) {
-                        dist[i][neighbor.index] = newDist;
-                        pq.offer(new Node(neighbor.index, newDist));
-                    }
+            for(Edge next : adjacents[current.to]) {
+                int newDist = dist[start][current.to] + next.cost;
+                if(dist[start][next.to] > newDist) {
+                    dist[start][next.to] = newDist;
+                    pq.offer(new Edge(next.to, newDist));
                 }
             }
         }
-
-        return dist;
     }
 
-    private static int findMaxStudent(int[][] dist, int X) {
-        int maxValue = -1;
-
-        for(int i = 1; i < dist.length; i++) {
-            if(i == X) continue;
-            maxValue = Math.max(maxValue, dist[i][X] + dist[X][i]);
-        }
-
-        return maxValue;
-    }
-
-    private static class Node implements Comparable<Node> {
-        public int index;
+    private static class Edge implements Comparable<Edge> {
+        public int to;
         public int cost;
 
-        public Node(int index, int cost) {
-            this.index = index;
+        public Edge(int to, int cost) {
+            this.to = to;
             this.cost = cost;
         }
 
         @Override
-        public int compareTo(Node o) {
+        public int compareTo(Edge o) {
             return Integer.compare(this.cost, o.cost);
         }
     }
