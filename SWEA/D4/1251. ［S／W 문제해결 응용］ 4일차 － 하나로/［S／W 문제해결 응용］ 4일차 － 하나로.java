@@ -39,7 +39,7 @@ class Solution
                     double xDistance = Math.abs(points[i].x - points[j].x);
                     double yDistance = Math.abs(points[i].y - points[j].y);
 
-                    double distance = Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2));
+                    double distance = xDistance * xDistance + yDistance * yDistance;
                     pq.offer(new Edge(i, j, distance));
                 }
             }
@@ -68,7 +68,7 @@ class Solution
             boolean result = union(current.a, current.b);
             if(result) {
                 count++;
-                sum += Math.pow(current.distance, 2);
+                sum += current.distance;
             }
         }
 
