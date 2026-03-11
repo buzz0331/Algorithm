@@ -4,13 +4,14 @@ import java.io.*;
 public class Main {
 
     private static int[] dices = new int[10], sequences = new int[10];
-    private static final Map<Integer, Path> pathMap =  // 길이, 한 칸 거리, 시작 점수
-            Map.of(
-                    1, new Path(3, 3, 13),
-                    2, new Path(2, 2, 22),
-                    3, new Path(3, -1, 28)
-            );
+    private static final Map<Integer, Path> pathMap =  new HashMap<>(); // 길이, 한 칸 거리, 시작 점수
     private static int max = -1;
+
+    static {
+        pathMap.put(1, new Path(3, 3, 13));
+        pathMap.put(2, new Path(2, 2, 22));
+        pathMap.put(3, new Path(3, -1, 28));
+    }
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
