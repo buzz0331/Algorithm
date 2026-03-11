@@ -20,19 +20,25 @@ public class Main {
             dices[i] = Integer.parseInt(st.nextToken());
         }
 
-        makeSequence(0);
+        makeSequence(0, 0);
         System.out.println(max);
     }
 
-    private static void makeSequence(int depth) {
-        if(depth == 10) {
-            startGame();
+    private static void makeSequence(int depth, int usedCount) {
+        if (depth == 10) {
+            startGame(); // 10개를 다 골랐을 때만 게임 시작
             return;
         }
 
-        for(int i = 0; i < 4; i++) {
+        int limit = Math.min(usedCount + 1, 4);
+
+        for (int i = 0; i < limit; i++) {
             sequences[depth] = i;
-            makeSequence(depth + 1);
+            if (i == usedCount) {
+                makeSequence(depth + 1, usedCount + 1);
+            } else {
+                makeSequence(depth + 1, usedCount);
+            }
         }
     }
 
@@ -72,7 +78,7 @@ public class Main {
                 // 4. 이동을 마치면 해당 말의 점수 합치기
                 sum += player.current;
             }
-            
+
             visited[previous][previousMode] = false;
         }
 
