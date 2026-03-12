@@ -3,8 +3,9 @@ import java.io.*;
 
 public class Main {
 
-    private static List<Edge>[] adj;
+    private static PriorityQueue<Edge> pq;
     private static int m, n;
+    private static int[] parents;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -18,10 +19,11 @@ public class Main {
             n = Integer.parseInt(st.nextToken());
             if(m == 0 && n == 0) break;
 
-            adj = new ArrayList[m];
+            parents = new int[m];
             for(int i = 0; i < m; i++) {
-                adj[i] = new ArrayList<>();
+                parents[i] = i;
             }
+            pq = new PriorityQueue<>();
 
             int totalCost = 0;
             for(int i = 0; i < n; i++) {
@@ -30,46 +32,60 @@ public class Main {
                 int y = Integer.parseInt(st.nextToken());
                 int c = Integer.parseInt(st.nextToken());
 
-                adj[x].add(new Edge(y, c));
-                adj[y].add(new Edge(x, c));
+                pq.offer(new Edge(x, y, c));
                 totalCost += c;
             }
 
-            sb.append(totalCost - prim()).append("\n");
+            sb.append(totalCost - kruskal()).append("\n");
         }
 
         System.out.print(sb);
     }
 
-    private static int prim() {
-        PriorityQueue<Edge> pq = new PriorityQueue<>();
-        boolean[] visited = new boolean[m];
+    private static int kruskal() {
         int sum = 0;
         int count = 0;
-
-        pq.offer(new Edge(0, 0));
 
         while(!pq.isEmpty()) {
             Edge current = pq.poll();
 
-            if(visited[current.to]) continue;
-            visited[current.to] = true;
-            sum += current.cost;
-            count++;
-            if(count == m) break;
+            if(union(current.from, current.to)) {
+                sum += current.cost;
+                count++;
 
-            for(Edge next : adj[current.to]) {
-                if(!visited[next.to]) pq.offer(next);
+                if(count == m - 1) break;
             }
         }
 
         return sum;
     }
 
-    private static class Edge implements Comparable<Edge> {
-        public int to, cost;
+    private static int find(int x) {
+        if(parents[x] == x) return x;
 
-        public Edge(int to, int cost) {
+        return parents[x] = find(parents[x]);
+    }
+
+    private static boolean union(int x, int y) {
+        int parentX = find(x);
+        int parentY = find(y);
+
+        if(parentX == parentY) return false;
+
+        if(parentX < parentY) {
+            parents[parentY] = parentX;
+        } else {
+            parents[parentX] = parentY;
+        }
+
+        return true;
+    }
+
+    private static class Edge implements Comparable<Edge> {
+        public int from, to, cost;
+
+        public Edge(int from, int to, int cost) {
+            this.from = from;
             this.to = to;
             this.cost = cost;
         }
