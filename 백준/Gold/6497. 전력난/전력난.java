@@ -3,7 +3,7 @@ import java.io.*;
 
 public class Main {
 
-    private static PriorityQueue<Edge> pq;
+    private static List<Edge> edges;
     private static int m, n;
     private static int[] parents;
 
@@ -23,7 +23,7 @@ public class Main {
             for(int i = 0; i < m; i++) {
                 parents[i] = i;
             }
-            pq = new PriorityQueue<>();
+            edges = new ArrayList<>();
 
             int totalCost = 0;
             for(int i = 0; i < n; i++) {
@@ -32,9 +32,11 @@ public class Main {
                 int y = Integer.parseInt(st.nextToken());
                 int c = Integer.parseInt(st.nextToken());
 
-                pq.offer(new Edge(x, y, c));
+                edges.add(new Edge(x, y, c));
                 totalCost += c;
             }
+            
+            Collections.sort(edges);
 
             sb.append(totalCost - kruskal()).append("\n");
         }
@@ -46,14 +48,12 @@ public class Main {
         int sum = 0;
         int count = 0;
 
-        while(!pq.isEmpty()) {
-            Edge current = pq.poll();
-
-            if(union(current.from, current.to)) {
+        for (Edge current : edges) {
+            if (union(current.from, current.to)) {
                 sum += current.cost;
                 count++;
 
-                if(count == m - 1) break;
+                if (count == m - 1) break;
             }
         }
 
