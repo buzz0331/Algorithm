@@ -44,6 +44,7 @@ public class Main {
 	private static int dijkstra(int start, int end) {
 		PriorityQueue<Edge> pq = new PriorityQueue<>();
 		int[] dist = new int[N + 1];
+		boolean[] visited = new boolean[N + 1];
 		Arrays.fill(dist, INF);
 		
 		dist[start] = 0;
@@ -52,11 +53,14 @@ public class Main {
 		while(!pq.isEmpty()) {
 			Edge current = pq.poll();
 			
+			if(visited[current.to]) continue; 
+			visited[current.to]= true; 
+			
 			for(Edge next : adj[current.to]) {
 				int newDist = dist[current.to] + next.cost;
 				if(dist[next.to] > newDist) {
 					dist[next.to] = newDist;
-					pq.offer(next);
+					pq.offer(new Edge(next.to, newDist));
 				}
 			}
 		}
