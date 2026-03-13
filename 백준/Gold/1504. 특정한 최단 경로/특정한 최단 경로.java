@@ -52,7 +52,7 @@ public class Main {
 		while(!pq.isEmpty()) {
 			Edge current = pq.poll();
 			
-			if(dist[current.to] >= INF) continue;
+			if(dist[current.to] < current.cost) continue; 
 			
 			for(Edge next : adj[current.to]) {
 				int newDist = dist[current.to] + next.cost;
